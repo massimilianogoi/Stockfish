@@ -25,6 +25,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "polybook.h"
 #include "evaluate.h"
 #include "misc.h"
 #include "movegen.h"
@@ -216,11 +217,24 @@ void MainThread::search() {
   }
   else
   {
-      for (Thread* th : Threads)
-          if (th != this)
-              th->start_searching();
+      Move bookMove = MOVE_NONE;
 
-      Thread::search(); // Let's start searching!
+      if (Options["OwnBook"] && !Limits.infinite && !Limits.mate)
+          bookMove = polybook.probe(rootPos);
+
+      if (bookMove && std::count(rootMoves.begin(), rootMoves.end(), bookMove))
+      {
+          for (Thread* th : Threads)
+              std::swap(th->rootMoves[0], *std::find(th->rootMoves.begin(), th->rootMoves.end(), bookMove));
+      }
+      else
+      {
+          for (Thread* th : Threads)
+              if (th != this)
+                  th->start_searching();
+
+          Thread::search(); // Let's start searching!
+      }
   }
 
   // When we reach the maximum depth, we can arrive here without a raise of
