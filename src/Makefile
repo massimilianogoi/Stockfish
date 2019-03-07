@@ -23,9 +23,9 @@
 
 ### Executable name
 ifeq ($(COMP),mingw)
-EXE = stockfish.exe
+EXE = stockfish_polyglot.exe
 else
-EXE = stockfish
+EXE = stockfish_polyglot
 endif
 
 ### Installation dir definitions
@@ -38,7 +38,7 @@ PGOBENCH = ./$(EXE) bench
 ### Object files
 OBJS = benchmark.o bitbase.o bitboard.o endgame.o evaluate.o main.o \
 	material.o misc.o movegen.o movepick.o pawns.o position.o psqt.o \
-	search.o thread.o timeman.o tt.o uci.o ucioption.o syzygy/tbprobe.o
+	search.o thread.o timeman.o tt.o uci.o ucioption.o polybook.o syzygy/tbprobe.o
 
 ### Establish the operating system name
 KERNEL = $(shell uname -s)
@@ -131,11 +131,13 @@ endif
 
 ifeq ($(ARCH),ppc-32)
 	arch = ppc
+	popcnt = yes
 endif
 
 ifeq ($(ARCH),ppc-64)
 	arch = ppc64
 	bits = 64
+	popcnt = yes
 endif
 
 

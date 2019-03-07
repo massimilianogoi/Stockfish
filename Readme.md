@@ -1,128 +1,184 @@
-Stockfish Polyglot 2019-01-06
+## Overview
 
-Stockfish Polyglot is none but the very own Stockfish with the only addition of the possibility to use Polyglot (.bin) books. In order to do that I used the library polybook.h and the C++ file polybook.cpp from Brainfish adding them to the Stockfish code with few other changes to make the polybook functions working. No functional changes to the original Stockfish algorythms were made.
-Stockfish Polyglot features also the 'OwnBook' checkbox, so that the user can easily switch from the Polyglot book to the local CTG book (Chessbase softwares) or ABK book (Arena GUI). I've wandered through GitHub to recover the 'OwnBook' checkbox code (it needed just two mere rows..), luckily I've managed to find it and extract the part I needed to use.
+[![Build Status](https://travis-ci.org/official-stockfish/Stockfish.svg?branch=master)](https://travis-ci.org/official-stockfish/Stockfish)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/official-stockfish/Stockfish?svg=true)](https://ci.appveyor.com/project/mcostalba/stockfish)
 
-Stockfish Polyglot 2019-01-11 https://chess.massimilianogoi.com
+[Stockfish](https://stockfishchess.org) is a free, powerful UCI chess engine
+derived from Glaurung 2.1. It is not a complete chess program and requires a
+UCI-compatible GUI (e.g. XBoard with PolyGlot, Scid, Cute Chess, eboard, Arena,
+Sigma Chess, Shredder, Chess Partner or Fritz) in order to be used comfortably.
+Read the documentation for your GUI of choice for information about how to use
+Stockfish with it.
 
-For feedbacks or suggestions please write me at https://chess.massimilianogoi.com/contacts/
 
---------------------------------------
+## Files
 
-LICENSE:
+This distribution of Stockfish consists of the following files:
 
-Since this program is under the GPU license you can do whatever you want with it, included
-uploading it on other websites, as far as its source is cited (the Stockfish crew,
-Thomas Zipproth for Brainfish and me (Massimiliano Goi) for this project).
+  * Readme.md, the file you are currently reading.
 
---------------------------------------
+  * Copying.txt, a text file containing the GNU General Public License version 3.
 
-CHANGELOG:
+  * src, a subdirectory containing the full source code, including a Makefile
+    that can be used to compile Stockfish on Unix-like systems.
 
-This distribution is the expansion of Stockfish beta having timestamp: 1547135164 - Remove pvExact
 
-The variable pvExact now overlaps with the pvHit concept. So you simplify 
-the logic with small code tweaks to have pvHit trigger where pvExact 
-previously triggered. 
+## UCI parameters
 
-passed STC: 
-LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 20558 W: 4497 L: 4373 D: 11688 Elo +2.10
-http://tests.stockfishchess.org/tests/view/5c36e9fd0ebc596a450c7885 
+Currently, Stockfish has the following UCI options:
 
-passed LTC: 
-LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
-Total: 23482 W: 3888 L: 3772 D: 15822 Elo +1.72
-http://tests.stockfishchess.org/tests/view/5c37072d0ebc596a450c7a52 
+  * #### Debug Log File
+    Write all communication to and from the engine into a text file.
 
-Bench: 3739723
+  * #### Contempt
+    A positive value for contempt favors middle game positions and avoids draws.
 
-CHANGES FROM THE PREVIOUS STOCKFISH POLYGLOT VERSION:
+  * #### Analysis Contempt
+    By default, contempt is set to prefer the side to move. Set this option to "White" 
+    or "Black" to analyse with contempt for that side, or "Off" to disable contempt.
 
-Author: mstembera 
-Date: Thu Jan 10 16:36:59 2019 +0100 
-Timestamp: 1547134619 
+  * #### Threads
+    The number of CPU threads used for searching a position. For best performance, set 
+    this equal to the number of CPU cores available.
 
-Minor cleanup to recent 'Flag critical search tree in hash table' patch 
+  * #### Hash
+    The size of the hash table in MB.
 
-No functional change 
- 
-Author: Joost VandeVondele 
-Date: Wed Jan 9 16:57:24 2019 +0100 
-Timestamp: 1547049444 
+  * #### Clear Hash
+    Clear the hash table.
 
-Small improvements to the CI infrastructure 
+  * #### Ponder
+    Let Stockfish ponder its next move while the opponent is thinking.
 
-- avoid inlining for the debug testing so that suppressions work 
-- provide more output for triggered errors 
+  * #### MultiPV
+    Output the N best lines (principal variations, PVs) when searching.
+    Leave at 1 for best performance.
 
-No functional change. 
- 
-Author: MJZ1977 
-Date: Wed Jan 9 15:05:33 2019 +0100 
-Timestamp: 1547042733 
+  * #### Skill Level
+    Lower the Skill Level in order to make Stockfish play weaker.
 
-Flag critical search tree in hash table 
+  * #### Move Overhead
+    Assume a time delay of x ms due to network and GUI overheads. This is useful to 
+    avoid losses on time in those cases.
 
-Introducing new concept, saving principal lines into the transposition table 
-to generate a "critical search tree" which we can reuse later for intelligent 
-pruning/extension decisions. 
+  * #### Minimum Thinking Time
+    Search for at least x ms per move. 
 
-For instance in this patch we just reduce reduction for these lines. But a lot 
-of other ideas are possible. 
+  * #### Slow Mover
+    Lower values will make Stockfish take less time in games, higher values will 
+    make it think longer.
 
-To go further : tune some parameters, how to add or remove lines from the 
-critical search tree, how to use these lines in search choices, etc. 
+  * #### nodestime
+    Tells the engine to use nodes searched instead of wall time to account for 
+    elapsed time. Useful for engine testing.
 
-STC : 
-LLR: 2.94 (-2.94,2.94) [0.50,4.50] 
-Total: 59761 W: 13321 L: 12863 D: 33577 Elo +2.66
-http://tests.stockfishchess.org/tests/view/5c34da5d0ebc596a450c53d3 
+  * #### UCI_Chess960
+    An option handled by your GUI. If true, Stockfish will play Chess960.
 
-LTC : 
-LLR: 2.96 (-2.94,2.94) [0.00,3.50] 
-Total: 26826 W: 4439 L: 4191 D: 18196 Elo +3.21
-http://tests.stockfishchess.org/tests/view/5c35ceb00ebc596a450c65b2 
+  * #### UCI_AnalyseMode
+    An option handled by your GUI.
 
-Special thanks to Miguel Lahoz for his help in transposition table in/out. 
+  * #### SyzygyPath
+    Path to the folders/directories storing the Syzygy tablebase files. Multiple 
+    directories are to be separated by ";" on Windows and by ":" on Unix-based 
+    operating systems. Do not use spaces around the ";" or ":".
+    
+    Example: `C:\tablebases\wdl345;C:\tablebases\wdl6;D:\tablebases\dtz345;D:\tablebases\dtz6`
+    
+    It is recommended to store .rtbw files on an SSD. There is no loss in storing 
+    the .rtbz files on a regular HD. It is recommended to verify all md5 checksums
+    of the downloaded tablebase files (`md5sum -c checksum.md5`) as corruption will
+    lead to engine crashes.
 
-Bench: 3399866 
- 
-Author: Miguel Lahoz 
-Date: Sun Jan 6 16:02:31 2019 +0100 
-Timestamp: 1546786951 
+  * #### SyzygyProbeDepth
+    Minimum remaining search depth for which a position is probed. Set this option
+    to a higher value to probe less agressively if you experience too much slowdown
+    (in terms of nps) due to TB probing.
 
-Introduce Multi-Cut 
+  * #### Syzygy50MoveRule
+    Disable to let fifty-move rule draws detected by Syzygy tablebase probes count
+    as wins or losses. This is useful for ICCF correspondence games.
 
-This was inspired after reading about 
-[Multi-Cut](https://www.chessprogramming.org/Multi-Cut). 
+  * #### SyzygyProbeLimit
+    Limit Syzygy tablebase probing to positions with at most this many pieces left
+    (including kings and pawns).
 
-We now do non-singular cut node pruning. The idea is to prune when we 
-have a "backup plan" in case our expected fail high node does not fail 
-high on the ttMove. 
 
-For singular extensions, we do a search on all other moves but the 
-ttMove. If this fails high on our original beta, this means that both 
-the ttMove, as well as at least one other move was proven to fail high 
-on a lower depth search. We then assume that one of these moves will 
-work on a higher depth and prune. 
+## What to expect from Syzygybases?
 
-STC: 
-LLR: 2.96 (-2.94,2.94) [0.50,4.50] 
-Total: 72952 W: 16104 L: 15583 D: 41265 Elo +2.48
-http://tests.stockfishchess.org/tests/view/5c3119640ebc596a450c0be5 
+If the engine is searching a position that is not in the tablebases (e.g.
+a position with 8 pieces), it will access the tablebases during the search.
+If the engine reports a very large score (typically 153.xx), this means
+that it has found a winning line into a tablebase position.
 
-LTC: 
-LLR: 2.95 (-2.94,2.94) [0.00,3.50] 
-Total: 27103 W: 4564 L: 4314 D: 18225 Elo +3.20
-http://tests.stockfishchess.org/tests/view/5c3184c00ebc596a450c1662 
+If the engine is given a position to search that is in the tablebases, it
+will use the tablebases at the beginning of the search to preselect all
+good moves, i.e. all moves that preserve the win or preserve the draw while
+taking into account the 50-move rule.
+It will then perform a search only on those moves. **The engine will not move
+immediately**, unless there is only a single good move. **The engine likely
+will not report a mate score even if the position is known to be won.**
 
-Bench: 3145487
+It is therefore clear that this behaviour is not identical to what one might
+be used to with Nalimov tablebases. There are technical reasons for this
+difference, the main technical reason being that Nalimov tablebases use the
+DTM metric (distance-to-mate), while Syzygybases use a variation of the
+DTZ metric (distance-to-zero, zero meaning any move that resets the 50-move
+counter). This special metric is one of the reasons that Syzygybases are
+more compact than Nalimov tablebases, while still storing all information
+needed for optimal play and in addition being able to take into account
+the 50-move rule.
 
-### Terms of use
 
-Stockfish is free, and distributed under the **GNU General Public License**
-(GPL). Essentially, this means that you are free to do almost exactly
+## Compiling Stockfish yourself from the sources
+
+On Unix-like systems, it should be possible to compile Stockfish
+directly from the source code with the included Makefile.
+
+Stockfish has support for 32 or 64-bit CPUs, the hardware POPCNT
+instruction, big-endian machines such as Power PC, and other platforms.
+
+In general it is recommended to run `make help` to see a list of make
+targets with corresponding descriptions. When not using the Makefile to
+compile (for instance with Microsoft MSVC) you need to manually
+set/unset some switches in the compiler command line; see file *types.h*
+for a quick reference.
+
+
+## Understanding the code base and participating in the project
+
+Stockfish's improvement over the last couple of years has been a great
+community effort. There are a few ways to help contribute to its growth.
+
+### Donating hardware
+
+Improving Stockfish requires a massive amount of testing. You can donate
+your hardware resources by installing the [Fishtest Worker](https://github.com/glinscott/fishtest/wiki/Running-the-worker) 
+and view the current tests on [Fishtest](http://tests.stockfishchess.org/tests).
+
+### Improving the code
+
+If you want to help improve the code, there are several valuable ressources:
+
+* [In this wiki,](https://www.chessprogramming.org) many techniques used in
+Stockfish are explained with a lot of background information.
+
+* [The section on Stockfish](https://www.chessprogramming.org/Stockfish)
+describes many features and techniques used by Stockfish. However, it is
+generic rather than being focused on Stockfish's precise implementation.
+Nevertheless, a helpful resource.
+
+* The latest source can always be found on [GitHub](https://github.com/official-stockfish/Stockfish).
+Discussions about Stockfish take place in the [FishCooking](https://groups.google.com/forum/#!forum/fishcooking) 
+group and engine testing is done on [Fishtest](http://tests.stockfishchess.org/tests).
+If you want to help improve Stockfish, please read this [guideline](https://github.com/glinscott/fishtest/wiki/Creating-my-first-test)
+first, where the basics of Stockfish development are explained.
+
+
+## Terms of use
+
+Stockfish is free, and distributed under the **GNU General Public License version 3**
+(GPL v3). Essentially, this means that you are free to do almost exactly
 what you want with the program, including distributing it among your
 friends, making it available for download from your web site, selling
 it (either by itself or as part of some bigger software package), or
@@ -133,5 +189,5 @@ some way, you must always include the full source code, or a pointer
 to where the source code can be found. If you make any changes to the
 source code, these changes must also be made available under the GPL.
 
-For full details, read the copy of the GPL found in the file named
+For full details, read the copy of the GPL v3 found in the file named
 *Copying.txt*.

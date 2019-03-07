@@ -141,9 +141,11 @@ enum CastlingRight {
   WHITE_OOO = WHITE_OO << 1,
   BLACK_OO  = WHITE_OO << 2,
   BLACK_OOO = WHITE_OO << 3,
+
   WHITE_CASTLING = WHITE_OO | WHITE_OOO,
   BLACK_CASTLING = BLACK_OO | BLACK_OOO,
-  ANY_CASTLING = WHITE_CASTLING | BLACK_CASTLING,
+  ANY_CASTLING   = WHITE_CASTLING | BLACK_CASTLING,
+
   CASTLING_RIGHT_NB = 16
 };
 
@@ -178,7 +180,7 @@ enum Value : int {
   VALUE_MATE_IN_MAX_PLY  =  VALUE_MATE - 2 * MAX_PLY,
   VALUE_MATED_IN_MAX_PLY = -VALUE_MATE + 2 * MAX_PLY,
 
-  PawnValueMg   = 136,   PawnValueEg   = 208,
+  PawnValueMg   = 128,   PawnValueEg   = 213,
   KnightValueMg = 782,   KnightValueEg = 865,
   BishopValueMg = 830,   BishopValueEg = 918,
   RookValueMg   = 1289,  RookValueEg   = 1378,
