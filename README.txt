@@ -8,11 +8,17 @@ For feedbacks or suggestions please write me at https://chess.massimilianogoi.co
 
 --------------------------------------
 
+Due to the missing of this feature in the main release I have decided
+to create a Stockfish perfectly equal to the last beta version with
+the capability to use Polyglot books (aka .bin or BIN).
+In order to do that I used the library polyblook.h from Brainfish and
+merged with the Stockfish code.
+
+--------------------------------------
+
 CHANGELOG:
 
 This distribution is the expansion of Stockfish beta having timestamp: 1553445685 - Simplify pawn asymmetry (remove use of semiopen files). (#2054)
-
-Maximize its strength by purchasing my opening book Goi: https://chess.massimilianogoi.com/shop/goiopeningbook/
 
 --------------------------------------
 
@@ -23,33 +29,6 @@ uploading it on other websites, as far as its source is cited (the Stockfish cre
 Thomas Zipproth for Brainfish and me (Massimiliano Goi) for this project).
 
 --------------------------------------
-
-Due to the missing of this feature in the main release I have decided
-to create a Stockfish perfectly equal to the last beta version with
-the capability to use Polyglot books (aka .bin or BIN).
-In order to do that I used the library polyblook.h from Brainfish and
-merged with the Stockfish code.
-
---------------------------------------
-
-Stockfish Polyglot 2019-03-29
-
-Binaries:
-
-Windows:
-
-Stockfish_Polyglot_2019-03-29_32bit.exe
-Stockfish_Polyglot_2019-03-29_32bit_general.exe
-Stockfish_Polyglot_2019-03-29_32bit_old.exe
-Stockfish_Polyglot_2019-03-29_32bit_popc.exe
-Stockfish_Polyglot_2019-03-29_x64.exe
-Stockfish_Polyglot_2019-03-29_x64_bmi2.exe
-Stockfish_Polyglot_2019-03-29_x64_general.exe
-Stockfish_Polyglot_2019-03-29_x64_modern.exe
-Stockfish_Polyglot_2019-03-29_x64_popc.exe
-
-This time no Linux:, as I'm busy with other projects and I had to delete the Linux virtual machine.
-
 
 Changes since the last Stockfish Polyglot release:
 
