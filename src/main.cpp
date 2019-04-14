@@ -43,7 +43,6 @@ int main(int argc, char* argv[]) {
   Position::init();
   Bitbases::init();
   Search::init();
-  Pawns::init();
   Threads.set(Options["Threads"]);
   polybook.init(Options["BookFile"]);
   Search::clear(); // After threads are up

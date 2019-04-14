@@ -47,6 +47,8 @@ void on_book_file(const Option& o) { polybook.init(o); }
 void on_best_book_move(const Option& o) { polybook.set_best_book_move(o); }
 void on_book_depth(const Option& o) { polybook.set_book_depth(o); }
 
+// Returns the maximum number of threads, setting with them the engine default
+unsigned int max_threads = std::thread::hardware_concurrency();
 
 /// Our case insensitive less() function as required by UCI protocol
 bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const {
@@ -60,13 +62,13 @@ bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const 
 
 void init(OptionsMap& o) {
 
-  // at most 2^32 clusters.
+  /// at most 2^32 clusters.
   constexpr int MaxHashMB = Is64Bit ? 131072 : 2048;
 
   o["Debug Log File"]        << Option("", on_logger);
   o["Contempt"]              << Option(24, -100, 100);
   o["Analysis Contempt"]     << Option("Both var Off var White var Black var Both", "Both");
-  o["Threads"]               << Option(1, 1, 512, on_threads);
+  o["Threads"]               << Option(1, max_threads, 512, on_threads);
   o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
   o["Clear Hash"]            << Option(on_clear_hash);
   o["Ponder"]                << Option(false);
@@ -79,12 +81,12 @@ void init(OptionsMap& o) {
   o["UCI_Chess960"]          << Option(false);
   o["UCI_AnalyseMode"]       << Option(false);
   o["SyzygyPath"]            << Option("<empty>", on_tb_path);
-  o["SyzygyProbeDepth"]      << Option(2, 1, 100); //various tests tell me this value is best set to 2
+  o["SyzygyProbeDepth"]      << Option(2, 1, 100); /// 2 is a better adviceable value, following my tests
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
-  o["OwnBook"]               << Option(false);
-  o["BookFile"]              << Option("Set here your Polyglot (.bin) book path", on_book_file);
-  o["BestBookMove"]          << Option(false, on_best_book_move);
+  o["OwnBook"]               << Option(false); /// checkbox to switch from BIN to CTG or ABK
+  o["BookFile"]              << Option("", on_book_file);
+  o["BestBookMove"]          << Option(false, on_best_book_move); /// having this function disabled gives better results and avoids repetitions in book testing
   o["BookDepth"]             << Option(255, 1, 255, on_book_depth);
 }
 

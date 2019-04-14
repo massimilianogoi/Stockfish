@@ -73,7 +73,7 @@ endif
 optimize = yes
 debug = no
 sanitize = no
-bits = 64
+bits = 32
 prefetch = no
 popcnt = no
 sse = no
@@ -131,13 +131,11 @@ endif
 
 ifeq ($(ARCH),ppc-32)
 	arch = ppc
-	popcnt = yes
 endif
 
 ifeq ($(ARCH),ppc-64)
 	arch = ppc64
 	bits = 64
-	popcnt = yes
 endif
 
 
