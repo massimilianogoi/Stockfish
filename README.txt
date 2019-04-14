@@ -1,4 +1,4 @@
-Stockfish Polyglot 2019-03-29
+Stockfish Polyglot 2019-04-13
 
 Downloaded from https://chess.massimilianogoi.com
 
@@ -16,12 +16,6 @@ merged with the Stockfish code.
 
 --------------------------------------
 
-CHANGELOG:
-
-This distribution is the expansion of Stockfish beta having timestamp: 1553445685 - Simplify pawn asymmetry (remove use of semiopen files). (#2054)
-
---------------------------------------
-
 LICENSE:
 
 Since this program is under the GPU license you can do whatever you want with it, included
@@ -30,182 +24,225 @@ Thomas Zipproth for Brainfish and me (Massimiliano Goi) for this project).
 
 --------------------------------------
 
+CHANGELOG:
+
+This distribution is the expansion of Stockfish beta having timestamp: 1555069684 - Revert "Shuffle detection #2064".
+The value max_threads = std::thread::hardware_concurrency(); has been added to ucioption.cpp so that the
+engine settings dialog box is set by default with the maximum number of threads.
+
+
 Changes since the last Stockfish Polyglot release:
 
-Timestamp: 1553445685 
+Author: Massimiliano Goi 
+Date: Sat Apr 13 23:30:04 2019 +0200 
 
-Simplify pawn asymmetry (remove use of semiopen files). (#2054) 
+The value max_threads = std::thread::hardware_concurrency(); has been added to ucioption.cpp so that the
+engine settings dialog box is set by default with the maximum number of threads.
 
-This is a functional simplification. 
+Author: Marco Costalba 
+Date: Fri Apr 12 13:48:04 2019 +0200 
+Timestamp: 1555069684 
 
-To me, the exclusive OR of semiopenFiles here is quite convoluted. Looks like it can be removed. 
+Revert "Shuffle detection #2064" 
+
+It causes a serious regression hanging a simple fixed 
+depth search. Reproducible with: 
+
+position fen q1B5/1P1q4/8/8/8/6R1/8/1K1k4 w - - 0 1 
+go depth 13 
+
+The reason is a search tree explosion due to: 
+
+if (... && depth < 3 * ONE_PLY) 
+ extension = ONE_PLY; 
+
+This is very dangerous code by itself because triggers **at the leafs** 
+and in the above position keeps extending endlessly. In normal games 
+time deadline makes the search to stop sooner or later, but in fixed 
+seacrch we just hang possibly for a very long time. This is not acceptable 
+because 'go depth 13' shall not be a surprise for any position. 
+
+This patch reverts commit 76f1807baa90eb69f66001d25df2a28533f9406f. 
+and fixes the issue https://github.com/official-stockfish/Stockfish/issues/2091 
+
+Bench: 3243738 
+ 
+Author: miguel-l 
+Date: Wed Apr 10 19:35:47 2019 +0200 
+Timestamp: 1554917747 
+
+Extend dangerous passed pawn moves (#2089) 
+
+Introduce a new search extension when pushing an advanced passed pawn is 
+also suggested by the first killer move. There have been previous tests 
+which have similar ideas, mostly about pawn pushes, but it seems to be 
+overkill to extend too many moves. My idea is to limit the extension to 
+when a move happens to be noteworthy in some other way as well, such as 
+in this case, when it is also a killer move. 
+
+STC: 
+LLR: 2.96 (-2.94,2.94) [0.50,4.50] 
+Total: 19027 W: 4326 L: 4067 D: 10634 Elo +4.73
+http://tests.stockfishchess.org/tests/view/5cac2cde0ebc5925cf00c36d 
+
+LTC: 
+LLR: 2.94 (-2.94,2.94) [0.00,3.50] 
+Total: 93390 W: 15995 L: 15555 D: 61840 Elo +1.64
+http://tests.stockfishchess.org/tests/view/5cac42270ebc5925cf00c4b9 
+
+For future tests, it looks like this will interact heavily with passed 
+pawn evaluation. It may be good to try more variants of some of the more 
+promising evaluations tests/tweaks. 
+
+Bench: 3666092
+ 
+Author: protonspring 
+Date: Wed Apr 10 19:33:57 2019 +0200 
+Timestamp: 1554917637 
+
+Simplify castlingPath (#2088) 
+
+Instead of looping through kfrom,kto, rfrom, rto, we can use BetweenBB. This is less lines of code and it is more clear what castlingPath actually is. Personal benchmarks are all over the place. However, this code is only executed when loading a position, so performance doesn't seem that relevant. 
+
+No functional change. 
+ 
+Author: 31m059 
+Date: Tue Apr 9 19:35:17 2019 +0200 
+Timestamp: 1554831317 
+
+Raise kingDanger threshold and adjust constant term #2087 
+
+The kingDanger term is intended to give a penalty which increases rapidly in the middlegame but less so in the endgame. To this end, the middlegame component is quadratic, and the endgame component is linear. However, this produces unintended consequences for relatively small values of kingDanger: the endgame penalty will exceed the middlegame penalty. This remains true up to kingDanger = 256 (a S(16, 16) penalty), so some of these inaccurate penalties are actually rather large. 
+
+In this patch, we increase the threshold for applying the kingDanger penalty to eliminate some of this unintended behavior. This was very nearly, but not quite, sufficient to pass on its own. The patch was finally successful by integrating a second kingDanger tweak by @Vizvezdenec, increasing the kingDanger constant term slightly and improving both STC and LTC performance. 
+
+Where do we go from here? I propose that in the future, any attempts to tune kingDanger coefficients should also consider tuning the kingDanger threshold. The evidence shows clearly that it should not be automatically taken to be zero. 
+
+Special thanks to @Vizvezdenec for the kingDanger constant tweak. Thanks also to all the approvers and CPU donors who made this possible! 
+
+STC: 
+LLR: -2.96 (-2.94,2.94) [0.00,4.00] 
+Total: 141225 W: 31239 L: 30846 D: 79140 Elo +0.97
+http://tests.stockfishchess.org/tests/view/5cabbdb20ebc5925cf00b86c 
+
+LTC: 
+LLR: 2.95 (-2.94,2.94) [0.00,4.00] 
+Total: 30708 W: 5296 L: 5043 D: 20369 Elo +2.86
+http://tests.stockfishchess.org/tests/view/5cabff760ebc5925cf00c22d 
+
+Bench: 3445945
+ 
+Author: protonspring 
+Date: Tue Apr 9 13:46:12 2019 +0200 
+Timestamp: 1554810372 
+
+Remove BetweenBB Array #2076 
+
+Non functional change. 
+ 
+Author: Marco Costalba 
+Date: Sat Apr 6 12:43:41 2019 +0200 
+Timestamp: 1554547421 
+
+Fix sed for OS X (#2080) 
+
+The sed command is a bit different in Mac OS X (why not!). 
+
+The ‘-i’ option required a parameter to tell what extension to add for the 
+backup file. To fix it, just add extension for backup file, for example ‘.bak’ 
+
+Fix broken Trevis CI test 
+
+No functional change.
+ 
+Author: erbsenzaehler 
+Date: Sat Apr 6 11:15:17 2019 +0200 
+Timestamp: 1554542117 
+
+Make ONE_PLY value independent again 
+
+And a Trevis CI test to catch future issues. 
+
+No functional change. 
+ 
+Author: Marco Costalba 
+Date: Sat Apr 6 02:03:15 2019 +0200 
+Timestamp: 1554508995 
+
+Fix a missing assignment in previous commit 
+
+While reformatting the patch, I got wrong a statement and converted it badly.
+ 
+Author: xoto10 
+Date: Fri Apr 5 20:37:16 2019 +0200 
+Timestamp: 1554489436 
+
+Use average bestMoveChanges across all threads #2072 
+
+The current update only by main thread depends on the luck of 
+whether main thread sees any/many changes to the best move or not. 
+It then makes large, lumpy changes to the time to be 
+used (1x, 2x, 3x, etc) depending on that sample of 1. 
+Use the average across all threads to get a more reliable 
+number with a smoother distribution. 
+
+STC @ 5+0.05 th 4 : 
+LLR: 2.95 (-2.94,2.94) [0.50,4.50] 
+Total: 51899 W: 11446 L: 11029 D: 29424 Elo +2.79
+http://tests.stockfishchess.org/tests/view/5ca32ff20ebc5925cf0016fb 
+
+STC @ 5+0.05 th 8 : 
+LLR: 2.96 (-2.94,2.94) [0.50,4.50] 
+Total: 13851 W: 2843 L: 2620 D: 8388 Elo +5.59
+http://tests.stockfishchess.org/tests/view/5ca35ae00ebc5925cf001adb 
+
+LTC @ 20+0.2 th 8 : 
+LLR: 2.95 (-2.94,2.94) [0.00,3.50] 
+Total: 48527 W: 7941 L: 7635 D: 32951 Elo +2.19
+http://tests.stockfishchess.org/tests/view/5ca37cb70ebc5925cf001cec 
+
+Further work: 
+Similar changes might be possible for the fallingEval and timeReduction calculations (and elsewhere?), using either the min, average or max values across all threads. 
+
+Bench 3506898 
+ 
+Author: Moez Jellouli 
+Date: Thu Apr 4 09:40:34 2019 +0200 
+Timestamp: 1554363634 
+
+Remove pureStaticEval #2069 
+
+Remove pureStaticEval variable and keep only one 
+static evaluation (ss->staticEval). 
 
 STC 
-LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 43885 W: 9731 L: 9653 D: 24501 Elo +0.62
-http://tests.stockfishchess.org/tests/view/5c9041680ebc5925cfff10ea 
+LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
+Total: 64617 W: 14348 L: 14312 D: 35957 Elo +0.19
+http://tests.stockfishchess.org/tests/view/5c9e1ad70ebc5925cfffc106 
 
 LTC 
 LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 68437 W: 11577 L: 11533 D: 45327 Elo +0.22
-http://tests.stockfishchess.org/tests/view/5c9101740ebc5925cfff1cbf 
+Total: 82200 W: 13703 L: 13680 D: 54817 Elo +0.10
+http://tests.stockfishchess.org/tests/view/5c9e4efd0ebc5925cfffc68b 
 
-bench 3575627
+Bench : 3506898 
  
-Author: Joost VandeVondele 
-Date: Sun Mar 24 17:40:29 2019 +0100 
-Timestamp: 1553445629 
+Author: Moez Jellouli 
+Date: Thu Apr 4 08:49:35 2019 +0200 
+Timestamp: 1554360575 
 
-Remove unneeded condition. (#2057) 
+Add attacked by 2 pawns to attackedBy2 (#2074) 
 
-This is covered by the line just before. If we would like to protect 
-against the piece value of e.g. a N == B, this could be done by an 
-assert, no need to do this at runtime. 
+Add squares attacked by 2 pawns to the attackedBy2 array 
 
-No functional change.
- 
-Author: protonspring 
-Date: Sun Mar 24 17:37:38 2019 +0100 
-Timestamp: 1553445458 
+STC : 
+LLR: -2.95 (-2.94,2.94) [0.50,4.50] 
+Total: 132722 W: 29583 L: 29090 D: 74049 Elo +1.29
+http://tests.stockfishchess.org/tests/view/5ca231ba0ebc5925cf000794 
 
-Simplify Passed Pawns (#2058) 
+LTC : 
+LLR: 2.95 (-2.94,2.94) [0.00,3.50] 
+Total: 94589 W: 16161 L: 15718 D: 62710 Elo +1.63
+http://tests.stockfishchess.org/tests/view/5ca25d180ebc5925cf000ba4 
 
-This is a non-functional simplification/speedup. 
-
-The truth-table for popcount(support) >= popcount(lever) - 1 is: 
-------------------lever 
-------------------0-------1---------2 
-support--0------X-------X---------0 
------------1------X-------X---------X 
------------2------X-------X---------X 
-
-Thus, it is functionally equivalent to just do: support || !more_than_one(lever) which removes the expensive popcounts and the -1. 
-
-Result of 20 runs: 
-base (...h_master.exe) = 1451680 +/- 8202 
-test (./stockfish ) = 1454781 +/- 8604 
-diff = +3101 +/- 931 
-
-STC 
-LLR: 2.94 (-2.94,2.94) [-3.00,1.00] 
-Total: 35424 W: 7768 L: 7674 D: 19982 Elo +0.92
-Http://tests.stockfishchess.org/tests/view/5c970f170ebc5925cfff5e28 
-
-No functional change. 
- 
-Author: xoto10 
-Date: Wed Mar 20 14:57:34 2019 +0100 
-Timestamp: 1553090254 
-
-Remove !extension check #2045 
-
-While looking at pruning using see_ge() (which is very valuable) 
-it became apparent that the !extension test is not adding any 
-value - simplify it away. 
-
-STC: 
-LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 56843 W: 12621 L: 12569 D: 31653 Elo +0.32
-http://tests.stockfishchess.org/tests/view/5c8588cb0ebc5925cffe77f4 
-
-LTC: 
-LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 78622 W: 13223 L: 13195 D: 52204 Elo +0.12
-http://tests.stockfishchess.org/tests/view/5c8611cc0ebc5925cffe7f86 
-
-Further work could be to optimize the remaining see_ge() test. The idea of less pruning at higher depths is valuable, but perhaps the test (-PawnValueEg * depth) can be improved. 
-
-Bench: 3188688 
- 
-Author: CoffeeOne 
-Date: Wed Mar 20 14:50:41 2019 +0100 
-Timestamp: 1553089841 
-
-Skip skipping thread scheme (#1972) 
-
-
-Several simplification tests (all with the bounds [-3,1]) were run: 
-5+0.05 8 threads, failed very quickly: 
-http://tests.stockfishchess.org/tests/view/5c439a020ebc5902bb5d3970 
-
-20+0.2 8 threads, also failed, but needed a lot more games: 
-http://tests.stockfishchess.org/tests/view/5c44b1b70ebc5902bb5d4e34 
-
-60+0.6 8 threads passed: 
-http://tests.stockfishchess.org/tests/view/5c48bfe40ebc5902bca15325 
-
-60+0.6 4 threads passed: 
-http://tests.stockfishchess.org/tests/view/5c4b71a00ebc593af5d49904 
-
-No functional change. 
- 
-Author: Marco Costalba 
-Date: Tue Mar 12 08:35:10 2019 +0100 
-Timestamp: 1552376110 
-
-Increase thread stack for OS X (#2035) 
-
-On OS X threads other than the main thread are created with a reduced stack 
-size of 512KB by default, this is dangerously low for deep searches, so 
-adjust it to TH_STACK_SIZE. The implementation calls pthread_create() with 
-proper stack size parameter. 
-
-Verified for no regression at STC enabling the patch on all platforms where 
-pthread is supported. 
-
-LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
-Total: 50873 W: 9768 L: 9700 D: 31405 Elo +0.46
-
-No functional change.
- 
-Author: protonspring 
-Date: Sun Mar 10 10:53:39 2019 +0100 
-Timestamp: 1552211619 
-
-Remove popcount16() (#2038) 
-
-This is a non-functional simplification / code-style change. 
-
-This popcount16 method does nothing but initialize the PopCnt16 arrays. 
-
-This can be done in a single bitset line, which is less lines and more clear. Performance for this code is moot. 
-
-No functional change.
- 
-Author: xoto10 
-Date: Sun Mar 10 10:47:42 2019 +0100 
-Timestamp: 1552211262 
-
-Simplify failedLow away #1986 
-
-FailedLow doesn't seem to add any value so remove it. 
-
-STC: 
-LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 43915 W: 9682 L: 9604 D: 24629 Elo +0.62
-http://tests.stockfishchess.org/tests/view/5c5339770ebc592fc7baef74 
-
-LTC: 
-LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 58515 W: 9670 L: 9609 D: 39236 Elo +0.36
-http://tests.stockfishchess.org/tests/view/5c53cc840ebc592fc7baf6c1 
-
-Ideas for further work: 
-
- Tune the values in the revised fallingEval calculation 
- Consider adding a term using delta, e.g. c * (delta - 20) as an indicator of eval instability 
-
-Bench: 3318033 
- 
-Author: Marco Costalba 
-Date: Sat Mar 9 13:28:11 2019 +0100 
-Timestamp: 1552134491 
-
-Revert "Allowing singular extension in mate positions" 
-
-It was causing an assert: value > -VALUE_INFINITE 
-under some conditions. 
-
-See https://github.com/official-stockfish/Stockfish/issues/2036 
-
-Bench: 3318033  
+Bench: 3337864 
