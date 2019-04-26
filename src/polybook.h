@@ -87,5 +87,5 @@ private:
 };
 
 extern PolyBook polybook;
-
+extern PolyBook polybook2;
 #endif // #ifndef POLYBOOK_H_INCLUDED

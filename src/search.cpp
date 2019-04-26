@@ -18,7 +18,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstring>   // For std::memset
@@ -69,10 +68,10 @@ namespace {
   }
 
   // Reductions lookup table, initialized at startup
-  int Reductions[64]; // [depth or moveNumber]
+  int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
   template <bool PvNode> Depth reduction(bool i, Depth d, int mn) {
-    int r = Reductions[std::min(d / ONE_PLY, 63)] * Reductions[std::min(mn, 63)] / 1024;
+    int r = Reductions[d / ONE_PLY] * Reductions[mn] / 1024;
     return ((r + 512) / 1024 + (!i && r > 1024) - PvNode) * ONE_PLY;
   }
 
@@ -149,7 +148,7 @@ namespace {
 
 void Search::init() {
 
-  for (int i = 1; i < 64; ++i)
+  for (int i = 1; i < MAX_MOVES; ++i)
       Reductions[i] = int(1024 * std::log(i) / std::sqrt(1.95));
 }
 
@@ -194,7 +193,7 @@ void MainThread::search() {
   {
       Move bookMove = MOVE_NONE;
 
-      if (!Limits.infinite && !Limits.mate)
+      if (Options["OwnBook"] && !Limits.infinite && !Limits.mate)
           bookMove = polybook.probe(rootPos);
 
       if (bookMove && std::count(rootMoves.begin(), rootMoves.end(), bookMove))
@@ -204,11 +203,14 @@ void MainThread::search() {
       }
       else
       {
-          for (Thread* th : Threads)
-              if (th != this)
-                  th->start_searching();
+        for (Thread* th : Threads)
+        {
+           th->bestMoveChanges = 0;
+            if (th != this)
+                th->start_searching();
+        }
 
-          Thread::search(); // Let's start searching!
+        Thread::search(); // Let's start searching!
       }
   }
 
@@ -596,8 +598,7 @@ namespace {
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
     (ss+1)->ply = ss->ply + 1;
-    ss->currentMove = (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
+    (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
@@ -635,9 +636,8 @@ namespace {
                 if (!pos.capture_or_promotion(ttMove))
                     update_quiet_stats(pos, ss, ttMove, nullptr, 0, stat_bonus(depth));
 
-                // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
-                if (    ((ss-1)->moveCount == 1 || (ss-1)->currentMove == (ss-1)->killers[0])
-                     && !pos.captured_piece())
+                // Extra penalty for early quiet moves of the previous ply
+                if ((ss-1)->moveCount <= 2 && !pos.captured_piece())
                         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY));
             }
             // Penalty for a quiet ttMove that fails low
@@ -1239,8 +1239,7 @@ moves_loop: // When in check, search starts from here
 
     Thread* thisThread = pos.this_thread();
     (ss+1)->ply = ss->ply + 1;
-    ss->currentMove = bestMove = MOVE_NONE;
-    ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
+    bestMove = MOVE_NONE;
     inCheck = pos.checkers();
     moveCount = 0;
 

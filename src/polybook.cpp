@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/timeb.h>
 
 PolyBook polybook;  // global PolyBook
+PolyBook polybook2;  // global second PolyBook
 
 using namespace std;
 
