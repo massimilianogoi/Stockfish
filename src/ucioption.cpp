@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <algorithm>
 #include <cassert>
 #include <ostream>
 #include <sstream>
@@ -77,7 +78,7 @@ void init(OptionsMap& o) {
   o["nodestime"]             << Option(0, 0, 10000);
   o["UCI_Chess960"]          << Option(false);
   o["UCI_AnalyseMode"]       << Option(false);
-  o["SyzygyPath"]            << Option("<empty>", on_tb_path);
+  o["SyzygyPath"]            << Option("", on_tb_path);
   o["SyzygyProbeDepth"]      << Option(2, 1, 100); /// 2 is a better adviceable value, following my tests
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
