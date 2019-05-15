@@ -1,4 +1,4 @@
-Stockfish Polyglot 2019-05-02
+Stockfish Polyglot 2019-05-15
 
 Downloaded from https://chess.massimilianogoi.com
 
@@ -30,21 +30,21 @@ merged with the Stockfish code.
 
 --------------------------------------
 
-Stockfish Polyglot 2019-05-02
+Stockfish Polyglot 2019-05-15
 
 Binaries:
 
 Windows:
 
-Stockfish_Polyglot_2019-05-02_32bit.exe
-Stockfish_Polyglot_2019-05-02_32bit_general.exe
-Stockfish_Polyglot_2019-05-02_32bit_old.exe
-Stockfish_Polyglot_2019-05-02_32bit_popc.exe
-Stockfish_Polyglot_2019-05-02_x64.exe
-Stockfish_Polyglot_2019-05-02_x64_bmi2.exe
-Stockfish_Polyglot_2019-05-02_x64_general.exe
-Stockfish_Polyglot_2019-05-02_x64_modern.exe
-Stockfish_Polyglot_2019-05-02_x64_popc.exe
+Stockfish_Polyglot_2019-05-15_32bit.exe
+Stockfish_Polyglot_2019-05-15_32bit_general.exe
+Stockfish_Polyglot_2019-05-15_32bit_old.exe
+Stockfish_Polyglot_2019-05-15_32bit_popc.exe
+Stockfish_Polyglot_2019-05-15_x64.exe
+Stockfish_Polyglot_2019-05-15_x64_bmi2.exe
+Stockfish_Polyglot_2019-05-15_x64_general.exe
+Stockfish_Polyglot_2019-05-15_x64_modern.exe
+Stockfish_Polyglot_2019-05-15_x64_popc.exe
 
 No Linux:, as I'm busy with other projects and I had to delete the Linux virtual machine.
 
