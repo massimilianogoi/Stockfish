@@ -11,8 +11,6 @@ CHANGELOG:
 
 This distribution is the expansion of Stockfish beta having timestamp: 1559306139 - Scale lazy threshold according to material. (#2170).
 
-Maximize its strength by purchasing my opening book Goi: https://chess.massimilianogoi.com/shop/goiopeningbook/
-
 --------------------------------------
 
 LICENSE:
