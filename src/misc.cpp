@@ -141,7 +141,6 @@ const string engine_info(bool to_uci) {
      << "T. Romstad, M. Costalba, J. Kiiski, G. Linscott, M. Goi"
      << "\n\nhttps://chess.massimilianogoi.com\n\n";
 
-
   return ss.str();
 }
 
