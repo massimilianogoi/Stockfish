@@ -131,11 +131,13 @@ endif
 
 ifeq ($(ARCH),ppc-32)
 	arch = ppc
+	popcnt = yes
 endif
 
 ifeq ($(ARCH),ppc-64)
 	arch = ppc64
 	bits = 64
+	popcnt = yes
 endif
 
 
