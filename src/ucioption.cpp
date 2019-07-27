@@ -22,6 +22,7 @@
 #include <cassert>
 #include <ostream>
 #include <sstream>
+#include <thread>
 
 #include "misc.h"
 #include "search.h"
@@ -60,13 +61,15 @@ bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const 
 
 void init(OptionsMap& o) {
 
+  unsigned int max_threads = std::thread::hardware_concurrency();
+
   // at most 2^32 clusters.
   constexpr int MaxHashMB = Is64Bit ? 131072 : 2048;
 
   o["Debug Log File"]        << Option("", on_logger);
-  o["Contempt"]              << Option(24, -100, 100);
-  o["Analysis Contempt"]     << Option("Both var Off var White var Black var Both", "Both");
-  o["Threads"]               << Option(1, 1, 512, on_threads);
+  o["Contempt"]              << Option(0, -100, 100);
+  o["Analysis Contempt"]     << Option("Off var Off var White var Black var Both", "Off");
+  o["Threads"]               << Option(max_threads, 1, 512, on_threads);
   o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
   o["Clear Hash"]            << Option(on_clear_hash);
   o["Ponder"]                << Option(false);
@@ -78,6 +81,9 @@ void init(OptionsMap& o) {
   o["nodestime"]             << Option(0, 0, 10000);
   o["UCI_Chess960"]          << Option(false);
   o["UCI_AnalyseMode"]       << Option(false);
+  o["UCI_LimitStrength"]     << Option(false);
+  o["UCI_Elo"]               << Option(1350, 1350, 2850);
+  o["SyzygyPath"]            << Option("<empty>", on_tb_path);
   o["SyzygyProbeDepth"]      << Option(2, 1, 100); /// 2 is a better adviceable value, following my tests
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);

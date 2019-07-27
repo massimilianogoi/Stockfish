@@ -45,8 +45,8 @@ int main(int argc, char* argv[]) {
   Bitbases::init();
   Endgames::init();
   Search::init();
-  Threads.set(Options["Threads"]);
   polybook.init(Options["BookFile"]);
+  Threads.set(Options["Threads"]);
   Search::clear(); // After threads are up
 
   UCI::loop(argc, argv);
