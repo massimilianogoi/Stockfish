@@ -21,6 +21,12 @@ Thomas Zipproth for Brainfish and me (Massimiliano Goi) for this project).
 
 CHANGELOG:
 
+Author: massimilianogoi
+Date: Fri Jul 27 22:00:00 2019 +0100 
+Added the function max_threads = std::thread::hardware_concurrency(); in
+ucioption.cpp to set as default the maximum number of threads in the
+uci settings.
+
 Author: mstembera 
 Date: Fri Jul 26 03:33:32 2019 +0200 
 Timestamp: 1564104812 
@@ -29,7 +35,7 @@ Bug fix: always choose shortest mate in multithread mode
 
 In current master, with the voting scheme the best thread selection may 
 pick a non mate or not the shortest mate thread. This patch fixes this bug. 
-Formatting suggestion by Jörg Oster. 
+Formatting suggestion by JÃ¶rg Oster. 
 
 Related past pull requests: 
 https://github.com/official-stockfish/Stockfish/pull/1074 
@@ -46,7 +52,7 @@ No functional change (in single threaded mode)
 
 ---------------------------------------------------- 
 
-Comment by Jörg Oster 
+Comment by JÃ¶rg Oster 
 
 Just one sample output to demonstrate the effect of this patch. 
 5 Threads, 1 GB Hash 
