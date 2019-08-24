@@ -46,13 +46,8 @@ Added extern PolyBook polybook3 and extern PolyBook polybook4; in polybook.h
 Author: massimilianogoi 
 Date: Thu Aug 24 11:20:00 2019 +0200 
 
-Added the global variables PolyBook polybook3 and Polybook polybook4 to polybook.cpp.
-
-Author: massimilianogoi 
-Date: Thu Aug 24 11:20:00 2019 +0200 
-
 Added nested if conditions to the condition if (Options["OwnBook"] && !Limits.infinite && !Limits.mate)
-so that it checks also the existence of a position on polybook3 and polybook4.
+so that it checks also the existence of a position on polybook3 and polybook4 in search.cpp.
 
 Author: protonspring 
 Date: Sat Aug 24 08:21:30 2019 +0200 
@@ -78,7 +73,7 @@ Timestamp: 1566570569
 Consolidate CastlingSide and CastlingRights 
 
 This is a non-functional simplification that removes CastlingSide and 
-implements the functionality in CastlingRights (thanks to Jörg Oster 
+implements the functionality in CastlingRights (thanks to JÃ¶rg Oster 
 for a comment on the first version of this patch). 
 
 STC 
