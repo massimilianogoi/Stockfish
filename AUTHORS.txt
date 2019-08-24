@@ -1,4 +1,4 @@
-# List of authors for Stockfish, updated for version 10
+﻿# List of authors for Stockfish, updated for version 10
 
 Tord Romstad (romstad)
 Marco Costalba (mcostalba)
@@ -11,6 +11,7 @@ Ajith Chandy Jose (ajithcj)
 Alain Savard (Rocky640)
 alayan-stk-2
 Alexander Kure
+Alexander Pagel (Lolligerhans)
 Ali AlZhrani (Cooffe)
 Andrew Grant (AndyGrant)
 Andrey Neporada (nepal)
@@ -82,6 +83,7 @@ Lub van den Berg (ElbertoOne)
 Luca Brivio (lucabrivio)
 Lucas Braesch (lucasart)
 Lyudmil Antonov (lantonov)
+Maciej Żenczykowski (zenczykowski)
 Massimiliano Goi (massimilianogoi)
 Matthew Lai (matthewlai)
 Matthew Sullivan

@@ -45,6 +45,9 @@ void on_logger(const Option& o) { start_logger(o); }
 void on_threads(const Option& o) { Threads.set(o); }
 void on_tb_path(const Option& o) { Tablebases::init(o); }
 void on_book_file(const Option& o) { polybook.init(o); }
+void on_book_file2(const Option& o) { polybook2.init(o); }
+void on_book_file3(const Option& o) { polybook3.init(o); }
+void on_book_file4(const Option& o) { polybook4.init(o); }
 void on_best_book_move(const Option& o) { polybook.set_best_book_move(o); }
 void on_book_depth(const Option& o) { polybook.set_book_depth(o); }
 
@@ -89,6 +92,9 @@ void init(OptionsMap& o) {
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
   o["OwnBook"]               << Option(false); /// checkbox to switch from BIN to CTG or ABK
   o["BookFile"]              << Option("", on_book_file);
+  o["BookFile 2"]             << Option("", on_book_file2);
+  o["BookFile 3"]              << Option("", on_book_file3);
+  o["BookFile 4"]             << Option("", on_book_file4);
   o["BestBookMove"]          << Option(false, on_best_book_move); /// having this function disabled gives better results and avoids repetitions in book testing
   o["BookDepth"]             << Option(255, 1, 255, on_book_depth);
 }
