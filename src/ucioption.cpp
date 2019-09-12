@@ -64,6 +64,7 @@ bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const 
 
 void init(OptionsMap& o) {
 
+   // gets the max number of threads
   unsigned int max_threads = std::thread::hardware_concurrency();
 
   // at most 2^32 clusters.
@@ -72,7 +73,7 @@ void init(OptionsMap& o) {
   o["Debug Log File"]        << Option("", on_logger);
   o["Contempt"]              << Option(0, -100, 100);
   o["Analysis Contempt"]     << Option("Off var Off var White var Black var Both", "Off");
-  o["Threads"]               << Option(max_threads, 1, 512, on_threads);
+  o["Threads"]               << Option(max_threads, 1, 512, on_threads); // sets the maximum number of threads as default
   o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
   o["Clear Hash"]            << Option(on_clear_hash);
   o["Ponder"]                << Option(false);
@@ -87,14 +88,14 @@ void init(OptionsMap& o) {
   o["UCI_LimitStrength"]     << Option(false);
   o["UCI_Elo"]               << Option(1350, 1350, 2850);
   o["SyzygyPath"]            << Option("<empty>", on_tb_path);
-  o["SyzygyProbeDepth"]      << Option(2, 1, 100); /// 2 is a better adviceable value, following my tests
+  o["SyzygyProbeDepth"]      << Option(1, 1, 100); /// switched back to 1, a more aggressive access to the tablebases files
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
   o["OwnBook"]               << Option(false); /// checkbox to switch from BIN to CTG or ABK
   o["BookFile"]              << Option("", on_book_file);
-  o["BookFile 2"]             << Option("", on_book_file2);
-  o["BookFile 3"]              << Option("", on_book_file3);
-  o["BookFile 4"]             << Option("", on_book_file4);
+  o["BookFile 2"]            << Option("", on_book_file2);
+  o["BookFile 3"]            << Option("", on_book_file3);
+  o["BookFile 4"]            << Option("", on_book_file4);
   o["BestBookMove"]          << Option(false, on_best_book_move); /// having this function disabled gives better results and avoids repetitions in book testing
   o["BookDepth"]             << Option(255, 1, 255, on_book_depth);
 }

@@ -1,4 +1,4 @@
-﻿# List of authors for Stockfish, updated for version 10
+# List of authors for Stockfish, updated for version 10
 
 Tord Romstad (romstad)
 Marco Costalba (mcostalba)

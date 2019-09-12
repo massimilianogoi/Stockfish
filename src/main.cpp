@@ -46,6 +46,9 @@ int main(int argc, char* argv[]) {
   Endgames::init();
   Search::init();
   polybook.init(Options["BookFile"]);
+  polybook.init(Options["BookFile2"]);
+  polybook.init(Options["BookFile3"]);
+  polybook.init(Options["BookFile4"]);
   Threads.set(Options["Threads"]);
   Search::clear(); // After threads are up
 
