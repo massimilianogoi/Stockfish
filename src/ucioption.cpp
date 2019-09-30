@@ -88,7 +88,7 @@ void init(OptionsMap& o) {
   o["UCI_LimitStrength"]     << Option(false);
   o["UCI_Elo"]               << Option(1350, 1350, 2850);
   o["SyzygyPath"]            << Option("<empty>", on_tb_path);
-  o["SyzygyProbeDepth"]      << Option(1, 1, 100); /// switched back to 1, a more aggressive access to the tablebases files
+  o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
   o["OwnBook"]               << Option(false); /// checkbox to switch from BIN to CTG or ABK

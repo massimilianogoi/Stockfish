@@ -790,6 +790,9 @@ namespace {
         if (eval == VALUE_NONE)
             ss->staticEval = eval = evaluate(pos);
 
+        if (eval == VALUE_DRAW)
+            eval = value_draw(depth, thisThread);
+
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
@@ -1022,10 +1025,6 @@ moves_loop: // When in check, search starts from here
                && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
           extension = ONE_PLY;
 
-      // Castling extension
-      else if (type_of(move) == CASTLING)
-          extension = ONE_PLY;
-
       // Shuffle extension
       else if (   PvNode
                && pos.rule50_count() > 18
@@ -1037,6 +1036,10 @@ moves_loop: // When in check, search starts from here
       else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
+          extension = ONE_PLY;
+          
+      // Castling extension
+      if (type_of(move) == CASTLING)
           extension = ONE_PLY;
 
       // Calculate new depth for this move
@@ -1078,7 +1081,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (  (!givesCheck || !extension)
+          else if (  !(givesCheck && extension)
                    && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
@@ -1124,7 +1127,7 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 15)
               r -= ONE_PLY;
 
-          // Decrease reduction if move has been singularly extended
+          // Decrease reduction if ttMove has been singularly extended
           r -= singularLMR * ONE_PLY;
 
           if (!captureOrPromotion)
