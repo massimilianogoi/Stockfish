@@ -1,4 +1,4 @@
-Stockfish Polyglot 2019-09-30 by Massimiliano Goi (c) - https://chess.massimilianogoi.com
+Stockfish Polyglot 2019-10-27 by Massimiliano Goi (c) - https://chess.massimilianogoi.com
 
 --------------------------------------
 
@@ -17,528 +17,410 @@ Thomas Zipproth for Brainfish and me (Massimiliano Goi) for this project).
 
 --------------------------------------
 
-
 CHANGELOG:
 
-This distribution is the expansion of Stockfish beta having timestamp: Timestamp: 1569581207 - Extend castling independently of singular extension.
+This distribution is the expansion of Stockfish beta having timestamp: 1572045055 - Refactor final stats updates.
 
 Changes since the last version:
 
-Author: 31m059 
-Date: Fri Sep 27 12:46:47 2019 +0200 
-Timestamp: 1569581207 
-
-Extend castling independently of singular extension 
-
-A curious feature of Stockfish's current extension code is its repeated 
-use of "else if." In most cases, this makes no functional difference, 
-because no more than one extension is applied; once one extension has 
-been applied, the remaining ones can be safely ignored. 
-
-However, if most singular extension search conditions are true, except 
-"value < singularBeta", no non-singular extensions (e.g., castling) can 
-be performed! 
-
-Three tests were submitted, for three of Stockfish's four non-singular 
-extensions. I excluded the shuffle extension, because historically there 
-have been concerns about the fragility of its conditions, and I did not 
-want to risk causing any serious search problems. 
-
-- Modifying the passed pawn extension appeared roughly neutral at STC. At 
-best, it appeared to be an improvement of less than 1 Elo. 
-- Modifying check extension performed very poorly at STC 
-- Modifying castling extension (this patch) produced a long "yellow" run 
- at STC (insufficient to pass, but positive score) and a strong LTC. 
-
-In simple terms, prior to this patch castling extension was occasionally 
-not applied during search--on castling moves. The effect of this patch is 
-to perform castling extension on more castling moves. It does so without 
-adding any code complexity, simply by replacing an "else if" with "if" and 
-reordering some existing code. 
-
-STC: 
-LLR: -2.96 (-2.94,2.94) [0.00,4.00] 
-Total: 108114 W: 23877 L: 23615 D: 60622 Elo +0.84
-http://tests.stockfishchess.org/tests/view/5d8d86bd0ebc590f3beb0c88 
-
-LTC: 
-LLR: 2.96 (-2.94,2.94) [0.00,4.00] 
-Total: 20862 W: 3517 L: 3298 D: 14047 Elo +3.65
-http://tests.stockfishchess.org/tests/view/5d8d99cd0ebc590f3beb1899 
-
-Bench: 3728191 
-
--------- 
-
-Where do we go from here? 
-
-- It seems strange to me that check extension performed so poorly -- clearly 
-some of the singular extension conditions are also very important for check 
-extension. I am not an expert in search, and I do not have any intuition 
-about which of the eight conditions is/are the culprit. I will try a 
-succession of eight STC tests to identify the relevant conditions, then try 
-to replicate this PR for check extension. 
-
-- Recent tests interacting with the castle extension may deserve retesting. 
-I will shortly resubmit a few of my recent castling extension tweaks, rebased 
-on this PR/commit. 
-
-My deepest thanks to @noobpwnftw for the extraordinary CPU donation, and to 
-all our other fishtest volunteers, who made it possible for a speculative LTC 
-to pass in 70 minutes! 
-
-Closes https://github.com/official-stockfish/Stockfish/pull/2331 
- 
-Author: Alain SAVARD 
-Date: Fri Sep 27 12:37:49 2019 +0200 
-Timestamp: 1569580669 
-
-Simplify RookOnPawn 
-
-Remove the RookOnPawn logic (for rook on rank 5 and above aligning with pawns 
-on same row or file) which was overlapping with a few other parameters. 
-
-Inspired by @31m059 interesting result hinting that a direct attack on pawns 
-instead of PseudoAttacks might work. 
-http://tests.stockfishchess.org/tests/view/5d89a7c70ebc595091801b8d 
-
-After a few attempts by me and @31m059, and some long STC greens but red LTC, 
-as a proof of concept I first tried a local SPSA at VSTC trying to tune related 
-rook psqt rows, and mainly some rook related stuff in evaluate.cpp. 
-Result was STC green, but still red LTC, 
-
-Finally a 100M fishtest SPSA at LTC proved successful both at STC and LTC. 
-
-All this was possible with the awesome fishtest contributors. 
-At some point, I had 850 workers on the last test ! 
-
-Run as a simplification 
-
-STC 
-http://tests.stockfishchess.org/tests/view/5d8d68f40ebc590f3beaf171 
-LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 7399 W: 1693 L: 1543 D: 4163 Elo +7.04
-
-LTC 
-http://tests.stockfishchess.org/tests/view/5d8d70270ebc590f3beaf63c 
-LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
-Total: 41617 W: 6981 L: 6894 D: 27742 Elo +0.73
-
-Closes https://github.com/official-stockfish/Stockfish/pull/2329 
-
-bench: 4037914 
- 
 Author: Joost VandeVondele 
-Date: Fri Sep 27 00:16:49 2019 +0200 
-Timestamp: 1569536209 
+Date: Sat Oct 26 01:10:55 2019 +0200 
+Timestamp: 1572045055 
 
-Remove custom mutex implementation 
+Refactor final stats updates. 
 
-As part of the investigation of the hang caused by an incorrect implementation 
-of condition_variable in libwinpthread, it was realized that our custom Mutex 
-implementation is no longer needed. Prior to lazySMP this custom implementation 
-resulted in a 30% speedup, but now no speed difference can be measured as no 
-mutex is used on the hot path in lazySMP. 
+This PR refactors update_quiet_stats, update_capture_stats and search to more clearly reflect what is actually done. 
 
-https://github.com/official-stockfish/Stockfish/issues/2291 
-https://github.com/official-stockfish/Stockfish/issues/2309#issuecomment-533733393 https://github.com/official-stockfish/Stockfish/issues/2309#issuecomment-533737515 
+Effectively, all stat updates that need to be done after search is finished and a bestmove is found, 
+are collected in a new function ```final_stats_update()```. This shortens our main search routine, and simplifies ```update_quiet_stats```. 
+The latter function is now more easily reusable with fewer arguments, as the handling of ```quietsSearched``` is only needed in ```final_stats_update```. 
+```update_capture_stats```, which was only called once is now integrated in ```final_stats_update```, which allows for removing a branch and reusing some ```stat_bonus``` calls. The need for refactoring was also suggested by the fact that the comments of ```update_quiet_stats``` and ```update_capture_stats``` were incorrect (e.g. ```update_capture_stats``` was called, correctly, also when the bestmove was a quiet and not a capture). 
 
-The interest of this patch is that it removes platform-specific code, which is 
-always less tested. 
-
-No functional change. 
- 
-Author: Ste´phane Nicolet 
-Date: Thu Sep 26 23:27:48 2019 +0200 
-Timestamp: 1569533268 
-
-Restore development version (revert previous commit) 
-
-Revert the previous patch now that the binary for the super-final 
-of TCEC season 16 has been sent. 
-
-Maybe the feature of showing the name of compiler will be added to the 
-master branch in the future. But we may use a cleaner way to code it, see 
-some ideas using the Makefile approach at the end of pull request #2327 : 
-https://github.com/official-stockfish/Stockfish/pull/2327 
-
-Bench: 3618154 
- 
-Author: Ste´phane Nicolet 
-Date: Wed Sep 25 22:28:51 2019 +0200 
-Timestamp: 1569443331 
-
-Temporary patch to show the compiler for TCEC submission 
-
-This patch shows a description of the compiler used to compile Stockfish, 
-when starting from the console. 
-
-Usage: 
-
-``` 
-./stockfish 
-compiler 
-``` 
-
-Example of output: 
-
-``` 
-Stockfish 240919 64 POPCNT by T. Romstad, M. Costalba, J. Kiiski, G. Linscott 
-
-Compiled by clang++ 9.0.0 on Apple 
- __VERSION__ macro expands to: 4.2.1 Compatible Apple LLVM 9.0.0 (clang-900.0.38) 
-``` 
-
-No functional change 
- 
-Author: Ste´phane Nicolet 
-Date: Tue Sep 24 12:54:02 2019 +0200 
-Timestamp: 1569322442 
-
-Increase weight for supported pawns 
-
-This patch changes the weight for counting supports of pawns 
-from 17 to 21. Hopefully Stockfish will accept to play a bit 
-more of closed or semi-closed positions. 
-
-STC: 
-LLR: 2.95 (-2.94,2.94) [0.00,4.00] 
-Total: 13822 W: 3158 L: 2939 D: 7725 Elo +5.51
-http://tests.stockfishchess.org/tests/view/5d89c3a10ebc595091802379 
-
-LTC: 
-LLR: 2.96 (-2.94,2.94) [0.00,4.00] 
-Total: 63066 W: 10590 L: 10236 D: 42240 Elo +1.95
-http://tests.stockfishchess.org/tests/view/5d89ca7f0ebc595091802680 
-
-Future work: try to tweak the evaluation to better understand 
-the French structures. 
-
-Closes https://github.com/official-stockfish/Stockfish/pull/2326 
-
-Bench: 3618154 
- 
-Author: nickpelling 
-Date: Tue Sep 24 10:05:54 2019 +0200 
-Timestamp: 1569312354 
-
-Clarify the mapping of files to queenside 
-
-This patch replaces the obscure expressions mapping files ABCDEFGH to ABCDDCBA 
-by explicite calls to an auxiliary function: 
-
- old: f = min(f, ~f) 
- new: f = map_to_queenside(f) 
-
-We used the Golbolt web site (https://godbolt.org) to check that the current 
-code for the auxiliary function is optimal. 
-
-STC: 
+passed non-regression STC: 
 LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 30292 W: 6756 L: 6651 D: 16885 Elo +1.20
-http://tests.stockfishchess.org/tests/view/5d8676720ebc5971531d6aa1 
+Total: 75196 W: 16364 L: 16347 D: 42485 Elo +0.08
+http://tests.stockfishchess.org/tests/view/5db004ec0ebc5902c06db9e1 
 
-Achieved with a bit of help from Sopel97, snicolet and vondele, thanks everyone! 
-Closes https://github.com/official-stockfish/Stockfish/pull/2325 
-
-No functional change 
- 
-Author: xoto10 
-Date: Mon Sep 23 09:50:34 2019 +0200 
-Timestamp: 1569225034 
-
-Encourage rook lift to third rank 
-
-This change to the Rook psqt encourages rook lifts to the third rank 
-on the two center files. 
-
-STC 10+0.1 th 1 : 
-LLR: 2.96 (-2.94,2.94) [0.00,4.00] 
-Total: 40654 W: 9028 L: 8704 D: 22922 Elo +2.77
-http://tests.stockfishchess.org/tests/view/5d885da60ebc5906dd3e9fcd 
-
-LTC 60+0.6 th 1 : 
-LLR: 2.96 (-2.94,2.94) [0.00,4.00] 
-Total: 56963 W: 9530 L: 9196 D: 38237 Elo +2.04
-http://tests.stockfishchess.org/tests/view/5d88618c0ebc5906dd3ea45f 
-
-Thanks to @snicolet for mentioning that Komodo does this a lot and 
-Stockfish doesn't, which gave me the idea for this patch, and to 
-@noobpwnftw for providing cores to fishtest which allowed very quick 
-testing. 
-
-Future work: perhaps this can be refined somehow to encourage this 
-on other files, my attempts have failed. 
-
-Closes https://github.com/official-stockfish/Stockfish/pull/2322 
-
-Bench: 3950249 
- 
-Author: Ste´phane Nicolet 
-Date: Mon Sep 23 09:10:28 2019 +0200 
-Timestamp: 1569222628 
-
-Revert "Clarify the mapping of files to queenside" 
-
-This reverts commit 7756344d5d2b93970e7cd423f8cbf6fb1da11b74. 
- 
-Author: Ste´phane Nicolet 
-Date: Mon Sep 23 08:54:20 2019 +0200 
-Timestamp: 1569221660 
-
-Clarify the mapping of files to queenside 
-
-Author: @nickpelling 
-
-We replace in the code the obscure expressions mapping files ABCDEFGH to ABCDDCBA 
-by an explicite call to an auxiliary function : 
-
- old: f = min(f, ~f) 
- new: f = map_to_queenside(f) 
-
-We used the Golbolt web site (https://godbolt.org) to find the optimal code 
-for the auxiliary function. 
-
-STC: 
-LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 30292 W: 6756 L: 6651 D: 16885 Elo +1.20
-http://tests.stockfishchess.org/tests/view/5d8676720ebc5971531d6aa1 
-
-No functional change 
- 
-Author: Joost VandeVondele 
-Date: Mon Sep 23 07:29:00 2019 +0200 
-Timestamp: 1569216540 
-
-More random draw evaluations 
-
-Use the randomized draw function value_draw() also for draw evalutions. 
-
-This extends the earlier commit 
-https://github.com/official-stockfish/Stockfish/commit/97d2cc9a9c1c4b6ff1b470676fa18c7fc6509886 
-which did this only for 3folds. 
-
-As in that case, this test was yellow at STC and LTC, but green at VLTC, 
-indicative of the fact that the higher the drawrate, the more likely this 
-idea is beneficial. 
-
-STC: 
-LLR: -2.96 (-2.94,2.94) [0.50,4.50] 
-Total: 83573 W: 18584 L: 18335 D: 46654 Elo +1.04
-http://tests.stockfishchess.org/tests/view/5d84e44d0ebc5971531d4f94 
-
-LTC: 
-LLR: -2.96 (-2.94,2.94) [0.00,3.50] 
-Total: 92252 W: 15240 L: 15160 D: 61852 Elo +0.30
-http://tests.stockfishchess.org/tests/view/5d865dd90ebc5971531d68e1 
-
-VLTC: 120+1.2 @ 2th 
-LLR: 2.96 (-2.94,2.94) [0.00,3.50] 
-Total: 51902 W: 7323 L: 7028 D: 37551 Elo +1.97
-http://tests.stockfishchess.org/tests/view/5d8763620ebc595f57c22b15 
-
-Closes https://github.com/official-stockfish/Stockfish/pull/2321 
-
-Bench: 3441237 
- 
-Author: protonspring 
-Date: Mon Sep 23 07:12:32 2019 +0200 
-Timestamp: 1569215552 
-
-Simplify connected pawn scoring 
-
-When scoring the connected pawns, replace the intricate ternary expressions 
-choosing the coefficient by a simpler addition of boolean conditions: 
-
-` value = Connected * (2 + phalanx - opposed) ` 
-
-This is the map showing the old coefficients and the new ones: 
-
-``` 
-phalanx and unopposed: 3x -> 3x 
-phalanx and opposed: 1.5x -> 2x 
-not phalanx and unopposed: 2x -> 2x 
-not phalanx and opposed: 1x -> 1x 
-``` 
-
-STC 
-LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
-Total: 11354 W: 2579 L: 2437 D: 6338 Elo +4.35
-http://tests.stockfishchess.org/tests/view/5d8151f00ebc5971531d244f 
-
-LTC 
-LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
-Total: 41221 W: 7001 L: 6913 D: 27307 Elo +0.74
-http://tests.stockfishchess.org/tests/view/5d818f930ebc5971531d26d6 
-
-Bench: 3959889 
-
-blah 
- 
-Author: Joost VandeVondele 
-Date: Mon Sep 23 06:47:59 2019 +0200 
-Timestamp: 1569214079 
-
-Acknowledge fishtest authors 
-
-Explicitly acknowledge fishtest authors. 
-Their efforts are almost invisible, but essential for the project. 
-
-Many thanks to https://github.com/glinscott/fishtest/blob/master/AUTHORS ! 
-
-No functional change. 
- 
-Author: noobpwnftw 
-Date: Mon Sep 16 15:09:45 2019 +0200 
-Timestamp: 1568639385 
-
-Raise stack size to 8MB for pthreads 
-
-It seems there is no other way to specify stack size on std::thread than linker 
-flags and the effective flags are named differently in many toolchains. On 
-toolchains where pthread is always available, this patch changes the stack 
-size change in our C++ code via pthread to ensure a minimum stack size of 8MB, 
-instead of relying on linker defaults which may be platform-specific. 
-
-Also raises default stack size on OSX to current Linux default (8MB) just to 
-be safe. 
-
-Closes https://github.com/official-stockfish/Stockfish/pull/2303 
+The diff is most easily readable as ```git diff master --patience``` 
 
 No functional change 
  
 Author: Ste´phane Nicolet 
-Date: Mon Sep 16 01:37:39 2019 +0200 
-Timestamp: 1568590659 
-
-Scale down endgame factor when shuffling 
-
-This patch decreases the endgame scale factor using the 50 moves counter. 
-Looking at some games with this patch, it seems to have two effects on 
-the playing style: 
-
-1) when no progress can be made in late endgames (for instance in fortresses 
- or opposite bishops endgames) the evaluation will be largely tamed down 
- towards a draw value. 
-
-2) more interestingly, there is also a small effect in the midgame play because 
- Stockfish will panic a little bit if there are more than four consecutive 
- shuffling moves with an advantage: the engine will try to move a pawn or to 
- exchange a piece to keep the advantage, so the follow-ups of the position 
- will be discovered earlier by the alpha-beta search. 
-
-passed STC: 
-LLR: 2.95 (-2.94,2.94) [0.50,4.50] 
-Total: 23017 W: 5080 L: 4805 D: 13132 Elo +4.15
-http://tests.stockfishchess.org/tests/view/5d7e4aef0ebc59069c36fc74 
-
-passed LTC: 
-LLR: 2.95 (-2.94,2.94) [0.00,3.50] 
-Total: 30746 W: 5171 L: 4911 D: 20664 Elo +2.94
-http://tests.stockfishchess.org/tests/view/5d7e513d0ebc59069c36ff26 
-
-Pull request: https://github.com/official-stockfish/Stockfish/pull/2304 
-
-Bench: 4272173 
- 
-Author: Vizvezdenec 
-Date: Sun Sep 15 00:32:54 2019 +0200 
-Timestamp: 1568500374 
-
-Introduce midgame initiative 
-
-This patch finally introduces something that was tried for years: midgame score 
-dependance on complexity of position. More precisely, if the position is very 
-simplified and the complexity measure calculated in the initiative() function 
-is inferior to -50 by an amount d, then we add this value d to the midgame score. 
-
-One example of play of this patch will be (again!) 4 vs 3 etc same flank endgames 
-where sides have a lot of non-pawn material: 4 vs 3 draw mostly remains the same 
-draw even if we add a lot of equal material to both sides. 
-
-STC run was stopped after 200k games (and not converging): 
-LLR: -1.75 (-2.94,2.94) [0.50,4.50] 
-Total: 200319 W: 44197 L: 43310 D: 112812 Elo +1.54
-http://tests.stockfishchess.org/tests/view/5d7cfdb10ebc5902d386572c 
-
-passed LTC: 
-LLR: 2.95 (-2.94,2.94) [0.00,3.50] 
-Total: 41051 W: 6858 L: 6570 D: 27623 Elo +2.44
-http://tests.stockfishchess.org/tests/view/5d7d14680ebc5902d3866196 
-
-This is the first and not really precise version, a lot of other stuff can be 
-tried on top of it (separate complexity for middlegame, some more terms, even 
-simple retuning of values). 
-
-Bench: 4248476 
- 
-Author: Ste´phane Nicolet 
-Date: Sat Sep 14 08:33:00 2019 +0200 
-Timestamp: 1568442780 
+Date: Sat Oct 26 00:29:12 2019 +0200 
+Timestamp: 1572042552 
 
 Assorted trivial cleanups 
 
-No functional change 
- 
-Author: 31m059 
-Date: Sat Sep 14 07:47:05 2019 +0200 
-Timestamp: 1568440025 
-
-Use queens of either color in RookOnQueenFile 
-
-The recently-added RookOnQueenFile evaluation term (36e4a86) provided a bonus 
-for placing our rook on the same file as an enemy queen. 
-
-Here, we relax a condition in this bonus, broadening its effect to any queen. 
-It is also strategically desirable to place the rook on the same file as a friendly 
-queen, so the restriction on the queen's color is removed. 
-
-STC: 
-LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
-Total: 66856 W: 14847 L: 14815 D: 37194 Elo +0.17
-http://tests.stockfishchess.org/tests/view/5d7b3c6a0ebc5902d385bcf5 
-
-LTC: 
-LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
-Total: 86786 W: 14264 L: 14248 D: 58274 Elo +0.06
-http://tests.stockfishchess.org/tests/view/5d7b4e9b0ebc5902d385c178 
-
-Closes https://github.com/official-stockfish/Stockfish/pull/2302 
-
-Bench: 3703909 
- 
-Author: Ste´phane Nicolet 
-Date: Sat Sep 14 07:34:19 2019 +0200 
-Timestamp: 1568439259 
-
-Update Makefile documentation 
-
-Follow-up to previous commit. Update the documentation for the user when using `make`, 
-to show the preferred bmi2 compile in the advanced examples section. 
-
-Note: I made a mistake in the previous commit comment, the documentation is shown when 
-using `make` or `make help`, not `make --help`. 
+- Cleanups by Alain 
+- Group king attacks and king defenses 
+- Signature of futility_move_count() 
+- Use is_discovery_check_on_king() 
+- Simplify backward definition 
+- Use static asserts in move generator 
+- Factor a statement in move generator 
 
 No functional change 
  
 Author: Joost VandeVondele 
-Date: Sat Sep 14 07:11:23 2019 +0200 
-Timestamp: 1568437883 
+Date: Wed Oct 23 10:49:08 2019 +0200 
+Timestamp: 1571820548 
 
-Add sse4 if bmi2 is enabled 
+Simplify reductions on singular extension 
 
-The only change done to the Makefile to get a somewhat faster binary as 
-discussed in #2291 is to add -msse4 to the compile options of the bmi2 build. 
-Since all processors supporting bmi2 also support sse4 this can be done easily. 
-It is a useful step to avoid sending around custom and poorly tested builds. 
+Current master employs a scheme to adjust reductions on singular 
+nodes that is somewhat controversial, see 
+https://github.com/official-stockfish/Stockfish/pull/2167 
 
-The speedup isn't enough to pass [0,4] but it is roughly 1.15Elo and a LOS of 90%: 
-LLR: -2.95 (-2.94,2.94) [0.00,4.00] 
-Total: 93009 W: 20519 L: 20316 D: 52174 Elo +0.76
+This patch removes this use of a search result outside of [a,b], 
+by observing that the main effect of this code is to adjust the 
+reduction by an average of ~2 (1.7) rather than 1. 
 
-Also rewrite the documentation for the user when using `make --help`, so that 
-the order of architectures for x86-64 has the more performant build one on top. 
+Claims the first blue at STC and LTC: 
 
-Closes https://github.com/official-stockfish/Stockfish/pull/2300 
+STC: 
+LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
+Total: 30142 W: 6547 L: 6442 D: 17153 Elo +1.21
+http://tests.stockfishchess.org/tests/view/5daf16c40ebc5902c06da566 
 
-No functional change  
+LTC: 
+LLR: 2.96 (-2.94,2.94) [-3.00,1.00] 
+Total: 45715 W: 7380 L: 7298 D: 31037 Elo +0.62
+http://tests.stockfishchess.org/tests/view/5daf2f3c0ebc5902c06da6c7 
+
+Closes https://github.com/official-stockfish/Stockfish/pull/2367 
+
+Bench: 5115841 
+ 
+Author: Joost VandeVondele 
+Date: Tue Oct 22 00:02:46 2019 +0200 
+Timestamp: 1571695366 
+
+Avoid crashing on Log File opening 
+
+Stockfish crashes immediately if users enter a wrong file name (or even an existing 
+folder name) for debug log file. It may be hard for users to find out since it prints 
+nothing. If they enter the string via a chess GUI, the chess GUI may remember and 
+auto-send to Stockfish next time, makes Stockfish crashes all the time. Bug report by 
+Nguyen Hong Pham in this issue: https://github.com/official-stockfish/Stockfish/issues/2365 
+
+This patch avoids the crash and instead prefers to exit gracefully with a error 
+message on std:cerr, like we do with the fenFile for instance. 
+
+Closes https://github.com/official-stockfish/Stockfish/pull/2366 
+
+No functional change. 
+ 
+Author: xoto10 
+Date: Sun Oct 20 00:27:17 2019 +0200 
+Timestamp: 1571524037 
+
+Remove uithread 
+
+With the current questions and issues around threading, I had a look at 
+https://github.com/official-stockfish/Stockfish/issues/2299. 
+
+It seems there was a problem with data races when requesting eval via UCI while 
+a search was already running. To fix this an extra thread uithread was created, 
+presumably to avoid an overlap with Threads.main() that was causing problems. 
+Making this eval request seems to be outside the scope of UCI, and @vondele also 
+reports that the data race is not even fixed reliably by this change. I suggest 
+we simplify the threading here by removing this uithread and adding a comment 
+signaling that user should not request eval when a search is already running. 
+
+Closes https://github.com/official-stockfish/Stockfish/pull/2310 
+
+No functional change. 
+ 
+Author: VoyagerOne 
+Date: Fri Oct 18 17:05:23 2019 +0200 
+Timestamp: 1571411123 
+
+Current capture for Counter-Move history 
+
+Use current capture to index the CMH table instead of prior capture. 
+
+STC: 
+LLR: 2.96 (-2.94,2.94) [0.00,4.00] 
+Total: 61908 W: 13626 L: 13220 D: 35062 Elo +2.28
+http://tests.stockfishchess.org/tests/view/5da8aa670ebc597ba8eda558 
+
+LTC: 
+LLR: 2.96 (-2.94,2.94) [0.00,4.00] 
+Total: 49057 W: 8071 L: 7765 D: 33221 Elo +2.17
+http://tests.stockfishchess.org/tests/view/5da8e99d0ebc597ba8eda9ca 
+
+Closes https://github.com/official-stockfish/Stockfish/pull/2362 
+
+Bench: 4423737 
+ 
+Author: Joost VandeVondele 
+Date: Thu Oct 17 15:03:30 2019 +0200 
+Timestamp: 1571317410 
+
+Add four positions to bench 
+
+The current bench is missing a position with high 50 moves rule counter, 
+making most 'shuffle' tests based on 50mr > N seem non-functional. 
+This patch adds one FEN with high 50mr counter to address this issue 
+(taken from a recent tcec game). 
+
+Four new FENs: 
+- position with high 50mr counter 
+- tactical position with many captures, checks, extensions, fails high/low 
+- two losses by Stockfish in the S16 bonus games against Houdini 
+
+See the pull request for nice comments by @Alayan-stk-2 about each position 
+in bench: https://github.com/official-stockfish/Stockfish/pull/2338 
+
+Bench: 4590210 
+ 
+Author: VoyagerOne 
+Date: Wed Oct 9 15:22:16 2019 +0900 
+Timestamp: 1570602136 
+
+Introduce separate counter-move tables for inCheck 
+
+Enhance counter-move history table by adding a inCheck dimension. This doubles 
+the size of the table but provides more accurate move ordering. 
+
+STC: (yellow) 
+LLR: -2.94 (-2.94,2.94) [0.50,4.50] 
+Total: 36217 W: 7790 L: 7777 D: 20650 Elo +0.12
+http://tests.stockfishchess.org/tests/view/5d9b9a290ebc5902b6d04fe0 
+
+LTC: 
+LLR: 2.95 (-2.94,2.94) [0.00,3.50] 
+Total: 36665 W: 6063 L: 5788 D: 24814 Elo +2.61
+http://tests.stockfishchess.org/tests/view/5d9b9fcc0ebc5902b6d05985 
+
+Closes https://github.com/official-stockfish/Stockfish/pull/2353 
+
+Bench: 4053577 
+ 
+Author: 31m059 
+Date: Wed Oct 9 14:17:52 2019 +0900 
+Timestamp: 1570598272 
+
+No reachable outpost bonus for bishops 
+
+Previously, we used various control statements and ternary operators to divide 
+Outpost into four bonuses, based on whether the outpost was for a knight or 
+bishop, and whether it was currently an Outpost or merely a potential ("reachable") 
+one in the future. Bishop outposts, however, have traditionally been worth far 
+less Elo in testing. An attempt to remove them altogether passed STC, but failed LTC. 
+
+Here we include a narrower simplification, removing the reachable Outpost bonus 
+for bishops. This bonus was always suspect, given that its current implementation 
+conflicts directly with BishopPawns. BishopPawns penalizes our bishops based on the 
+number of friendly pawns on the same color of square, but by definition, Outposts 
+must be pawn-protected! This PR helps to alleviate this conceptual contradiction 
+without loss of Elo and with slightly simpler code. 
+
+On a code level, this allows us to simplify a ternary operator into the previous 
+"if" block and distribute a multiplication into an existing constant Score. On a 
+conceptual level, we retire one of the four traditional Outpost bonuses. 
+
+STC: 
+LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
+Total: 22277 W: 4882 L: 4762 D: 12633 Elo +1.87
+http://tests.stockfishchess.org/tests/view/5d9aeed60ebc5902b6cf9751 
+
+LTC: 
+LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
+Total: 51206 W: 8353 L: 8280 D: 34573 Elo +0.50
+http://tests.stockfishchess.org/tests/view/5d9af1940ebc5902b6cf9cd5 
+
+Closes https://github.com/official-stockfish/Stockfish/pull/2352 
+
+Bench: 3941591 
+ 
+Author: Alayan 
+Date: Mon Oct 7 22:30:04 2019 +0200 
+Timestamp: 1570480204 
+
+Adjust aspiration window with eval 
+
+This patch changes the base aspiration window size depending on the absolute 
+value of the previous iteration score, increasing it away from zero. This 
+stems from the observation that the further away from zero, the more likely 
+the evaluation is to change significantly with more depth. Conversely, a 
+tighter aspiration window is more efficient when close to zero. 
+
+A beneficial side-effect is that analysis of won positions without a quick 
+mate is less prone to waste nodes in repeated fail-high that change the eval 
+by tiny steps. 
+
+STC: 
+LLR: 2.96 (-2.94,2.94) [0.50,4.50] 
+Total: 60102 W: 13327 L: 12868 D: 33907 Elo +2.65
+http://tests.stockfishchess.org/tests/view/5d9a70d40ebc5902b6cf39ba 
+
+LTC: 
+LLR: 2.95 (-2.94,2.94) [0.00,3.50] 
+Total: 155553 W: 25745 L: 25141 D: 104667 Elo +1.35
+http://tests.stockfishchess.org/tests/view/5d9a7ca30ebc5902b6cf4028 
+
+Future work : the values used in this patch were only a reasonable guess. 
+Further testing should unveil more optimal values. However, the aspiration 
+window is rather tight with a minimum of 21 internal units, so discrete 
+integers put a practical limitation to such tweaking. 
+
+More exotic experiments around the aspiration window parameters could also 
+be tried, but efficient conditions to adjust the base aspiration window size 
+or allow it to not be centered on the current evaluation are not obvious. 
+
+The aspiration window increases after a fail-high or a fail-low is another 
+avenue to explore for potential enhancements. 
+
+Bench: 4043748 
+ 
+Author: SFisGOD 
+Date: Mon Oct 7 11:14:33 2019 +0200 
+Timestamp: 1570439673 
+
+Tweak kingFlankAttacks factor in kingDanger 
+
+Increase kingFlankAttacks factor in kingDanger from 5/16 to 6/16. 
+
+Failed STC: 
+LLR: -2.96 (-2.94,2.94) [0.00,4.00] 
+Total: 77947 W: 16989 L: 16848 D: 44110 Elo +0.63
+http://tests.stockfishchess.org/tests/view/5d9ac0280ebc5902b6cf63cd 
+
+Passed LTC 1: 
+LLR: 2.96 (-2.94,2.94) [0.00,4.00] 
+Total: 13443 W: 2231 L: 2037 D: 9175 Elo +5.01
+http://tests.stockfishchess.org/tests/view/5d9ac88d0ebc5902b6cf6ffb 
+
+Passed LTC 2: 
+LLR: 2.96 (-2.94,2.94) [0.00,4.00] 
+Total: 23340 W: 3842 L: 3617 D: 15881 Elo +3.35
+http://tests.stockfishchess.org/tests/view/5d9acf7f0ebc5902b6cf7c27 
+
+Closes https://github.com/official-stockfish/Stockfish/pull/2349 
+
+Bench: 4042155 
+ 
+Author: Alain SAVARD 
+Date: Mon Oct 7 00:50:54 2019 +0200 
+Timestamp: 1570402254 
+
+Adjust pawn span 
+
+Run as a simplification 
+
+a) insures that pawn attacks are always included in the pawn span 
+ (this "fixes" the case where some outpost or reachable outpost 
+ bonus were awarded on squares controlled by enemy pawns). 
+
+b) compute the full span only if not "backward" or not "blocked". 
+
+By looking at "blocked" instead of "opposed", we get a nice simpli- 
+fication and the "new" outpost detection is almost identical, except 
+a few borderline cases on rank 4. 
+
+passed STC 
+http://tests.stockfishchess.org/tests/view/5d9950730ebc5902b6cefb90 
+LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
+Total: 79113 W: 17168 L: 17159 D: 44786 Elo +0.04
+
+passed LTC 
+http://tests.stockfishchess.org/tests/view/5d99d14e0ebc5902b6cf0692 
+LLR: 2.95 (-2.94,2.94) [-3.00,1.00] 
+Total: 41286 W: 6819 L: 6731 D: 27736 Elo +0.74
+
+See https://github.com/official-stockfish/Stockfish/pull/2348 
+
+bench: 3812891 
+ 
+Author: Ondrej Mosnacek 
+Date: Sun Oct 6 23:05:30 2019 +0200 
+Timestamp: 1570395930 
+
+Make priorCapture a bool 
+
+It is always used as a bool, so let's make it a bool straight away. 
+We can always redefine it as a Piece in a later patch if we want 
+to use the piece type or the piece color. 
+
+No functional change. 
+ 
+Author: VoyagerOne 
+Date: Sun Oct 6 02:04:19 2019 +0200 
+Timestamp: 1570320259 
+
+Introduce separate counter-move tables for captures 
+
+Enhance counter-move history table by adding a capture/no-capture dimension, 
+depending wether the previous move was a quiet move or a capture. This doubles 
+the size of the table but provides more accurate move ordering. 
+
+STC: 
+LLR: 2.95 (-2.94,2.94) [0.50,4.50] 
+Total: 79702 W: 17720 L: 17164 D: 44818 Elo +2.42
+http://tests.stockfishchess.org/tests/view/5d97945e0ebc590c21aa724b 
+
+LTC: 
+LLR: 2.96 (-2.94,2.94) [0.00,3.50] 
+Total: 29147 W: 4907 L: 4651 D: 19589 Elo +3.05
+http://tests.stockfishchess.org/tests/view/5d97ccb90ebc590c21aa7bc0 
+
+Closes https://github.com/official-stockfish/Stockfish/pull/2344 
+
+Bench: 4131643 
+ 
+Author: Brian Sheppard 
+Date: Sun Oct 6 00:57:00 2019 +0200 
+Timestamp: 1570316220 
+
+Eliminate ONE_PLY 
+
+Simplification that eliminates ONE_PLY, based on a suggestion in the forum that 
+support for fractional plies has never been used, and @mcostalba's openness to 
+the idea of eliminating it. We lose a little bit of type safety by making Depth 
+an integer, but in return we simplify the code in search.cpp quite significantly. 
+
+No functional change 
+
+------------------------------------------ 
+
+The argument favoring eliminating ONE_PLY: 
+
+* The term “ONE_PLY” comes up in a lot of forum posts (474 to date) 
+https://groups.google.com/forum/?fromgroups=#!searchin/fishcooking/ONE_PLY%7Csort:relevance 
+
+* There is occasionally a commit that breaks invariance of the code 
+with respect to ONE_PLY 
+https://groups.google.com/forum/?fromgroups=#!searchin/fishcooking/ONE_PLY%7Csort:date/fishcooking/ZIPdYj6k0fk/KdNGcPWeBgAJ 
+
+* To prevent such commits, there is a Travis CI hack that doubles ONE_PLY 
+and rechecks bench 
+
+* Sustaining ONE_PLY has, alas, not resulted in any improvements to the 
+ engine, despite many individuals testing many experiments over 5 years. 
+
+The strongest argument in favor of preserving ONE_PLY comes from @locutus: 
+“If we use par example ONE_PLY=256 the parameter space is increases by the 
+factor 256. So it seems very unlikely that the optimal setting is in the 
+subspace of ONE_PLY=1.” 
+
+There is a strong theoretical impediment to fractional depth systems: the 
+transposition table uses depth to determine when a stored result is good 
+enough to supply an answer for a current search. If you have fractional 
+depths, then different pathways to the position can be at fractionally 
+different depths. 
+
+In the end, there are three separate times when a proposal to remove ONE_PLY 
+was defeated by the suggestion to “give it a few more months.” So… it seems 
+like time to remove this distraction from the community. 
+
+See the pull request here: 
+https://github.com/official-stockfish/Stockfish/pull/2289 
+ 
+Author: Stephane Nicolet 
+Date: Sat Oct 5 11:15:24 2019 +0200 
+Timestamp: 1570266924 
+
+Fix compare function in previous patch 
+
+Bench: 4012371  

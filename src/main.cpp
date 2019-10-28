@@ -44,7 +44,6 @@ int main(int argc, char* argv[]) {
   Position::init();
   Bitbases::init();
   Endgames::init();
-  Search::init();
   polybook.init(Options["BookFile"]);
   polybook.init(Options["BookFile2"]);
   polybook.init(Options["BookFile3"]);

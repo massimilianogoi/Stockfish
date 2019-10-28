@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 PolyBook polybook;  // global PolyBook
 PolyBook polybook2;  // global second PolyBook
-PolyBook polybook3;  // global thirdf PolyBook // added by Massimiliano Goi https://chess.massimilianogoi.com
-PolyBook polybook4;  // global fourth PolyBook // added by Massimiliano Goi https://chess.massimilianogoi.com
+PolyBook polybook3;  // global third PolyBook
+PolyBook polybook4;  // global fourth PolyBook
 
 using namespace std;
 

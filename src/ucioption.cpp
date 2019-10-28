@@ -98,6 +98,7 @@ void init(OptionsMap& o) {
   o["BookFile 4"]            << Option("", on_book_file4);
   o["BestBookMove"]          << Option(false, on_best_book_move); /// having this function disabled gives better results and avoids repetitions in book testing
   o["BookDepth"]             << Option(255, 1, 255, on_book_depth);
+
 }
 
 
