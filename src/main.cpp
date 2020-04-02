@@ -21,12 +21,12 @@
 #include <iostream>
 
 #include "bitboard.h"
+#include "endgame.h"
 #include "position.h"
 #include "search.h"
 #include "thread.h"
 #include "tt.h"
 #include "uci.h"
-#include "endgame.h"
 #include "syzygy/tbprobe.h"
 #include "polybook.h"
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
   polybook.init(Options["BookFile2"]);
   polybook.init(Options["BookFile3"]);
   polybook.init(Options["BookFile4"]);
-  Threads.set(Options["Threads"]);
+Threads.set(Options["Threads"]);
   Search::clear(); // After threads are up
 
   UCI::loop(argc, argv);
