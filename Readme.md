@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/official-stockfish/Stockfish.svg?branch=master)](https://travis-ci.org/official-stockfish/Stockfish)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/official-stockfish/Stockfish?branch=master&svg=true)](https://ci.appveyor.com/project/mcostalba/stockfish/branch/master)
 
-[Stockfish Polyglot] is none but the very own Stockfish with the ability to read the Polyglot (.bin) books. This chess program can read up to four Polyglot books at once.
+**Stockfish Polyglot** is none but the very own Stockfish with the ability to read the Polyglot (.bin) books. This chess program can read up to four Polyglot books at once.
 
 
 ## Files
