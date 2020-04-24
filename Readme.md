@@ -3,17 +3,12 @@
 [![Build Status](https://travis-ci.org/official-stockfish/Stockfish.svg?branch=master)](https://travis-ci.org/official-stockfish/Stockfish)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/official-stockfish/Stockfish?branch=master&svg=true)](https://ci.appveyor.com/project/mcostalba/stockfish/branch/master)
 
-[Stockfish](https://stockfishchess.org) is a free, powerful UCI chess engine
-derived from Glaurung 2.1. It is not a complete chess program and requires a
-UCI-compatible GUI (e.g. XBoard with PolyGlot, Scid, Cute Chess, eboard, Arena,
-Sigma Chess, Shredder, Chess Partner or Fritz) in order to be used comfortably.
-Read the documentation for your GUI of choice for information about how to use
-Stockfish with it.
+[Stockfish Polyglot] is none but the very own Stockfish with the ability to read the Polyglot (.bin) books. This chess program can read up to four Polyglot books at once.
 
 
 ## Files
 
-This distribution of Stockfish consists of the following files:
+This distribution of Stockfish Polyglot consists of the following files:
 
   * Readme.md, the file you are currently reading.
 
@@ -112,6 +107,27 @@ Currently, Stockfish has the following UCI options:
     Limit Syzygy tablebase probing to positions with at most this many pieces left
     (including kings and pawns).
 
+  * #### OwnBook
+    If checked allows the reading of Polyglot books in a determined file path.
+ 
+   * #### BookFile
+     The complete file path of the first book (in example C:\Users\Massimiliano Goi\Documents\ChessBase\Books\Goi 6.2.3.bin).
+
+   * #### BookFile2
+     The complete file path of the second book (in example C:\Users\Massimiliano Goi\Documents\ChessBase\Books\Goi 6.2.3.bin).
+
+   * #### BookFile3
+     The complete file path of the third book (in example C:\Users\Massimiliano Goi\Documents\ChessBase\Books\Goi 6.2.3.bin).
+
+   * #### BookFile4
+     The complete file path of the fourth book (in example C:\Users\Massimiliano Goi\Documents\ChessBase\Books\Goi 6.2.3.bin).
+
+  * #### BestBookMove
+    If checked the engine will choose only the best variant for any book node.
+
+  * #### BookDepth
+    It specifies how deep in plies must be the reading of the Polyglot book (1 move White/Black = 2 plies). The standard value is 255.
+
 
 ## What to expect from Syzygybases?
 
@@ -139,12 +155,12 @@ needed for optimal play and in addition being able to take into account
 the 50-move rule.
 
 
-## Compiling Stockfish yourself from the sources
+## Compiling Stockfish Polyglot yourself from the sources
 
-On Unix-like systems, it should be possible to compile Stockfish
+On Unix-like systems, it should be possible to compile Stockfish Polyglot
 directly from the source code with the included Makefile.
 
-Stockfish has support for 32 or 64-bit CPUs, the hardware POPCNT
+Stockfish Polyglot has support for 32 or 64-bit CPUs, the hardware POPCNT
 instruction, big-endian machines such as Power PC, and other platforms.
 
 In general it is recommended to run `make help` to see a list of make
@@ -158,7 +174,7 @@ compiler you used to create your executable. These informations can
 be found by typing the following commands in a console:
 
 ```
-    ./stockfish
+    ./stockfish_polyglot
     compiler
 ```
 
@@ -194,7 +210,7 @@ first, where the basics of Stockfish development are explained.
 
 ## Terms of use
 
-Stockfish is free, and distributed under the **GNU General Public License version 3**
+Stockfish Polyglot is free, and distributed under the **GNU General Public License version 3**
 (GPL v3). Essentially, this means that you are free to do almost exactly
 what you want with the program, including distributing it among your
 friends, making it available for download from your web site, selling
