@@ -295,9 +295,10 @@ void prefetch(void* addr) {
 #endif
 
 
-/// aligned_ttmem_alloc will return suitably aligned memory, and if possible use large pages.
-/// The returned pointer is the aligned one, while the mem argument is the one that needs to be passed to free.
-/// With c++17 some of this functionality can be simplified.
+/// aligned_ttmem_alloc() will return suitably aligned memory, and if possible use large pages.
+/// The returned pointer is the aligned one, while the mem argument is the one that needs
+/// to be passed to free. With c++17 some of this functionality could be simplified.
+
 #if defined(__linux__) && !defined(__ANDROID__)
 
 void* aligned_ttmem_alloc(size_t allocSize, void*& mem) {
@@ -337,17 +338,17 @@ static void* aligned_ttmem_alloc_large_pages(size_t allocSize) {
       tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
       // Try to enable SeLockMemoryPrivilege. Note that even if AdjustTokenPrivileges() succeeds,
-      // we still need to query GetLastError() to ensure that the privileges were actually obtained...
+      // we still need to query GetLastError() to ensure that the privileges were actually obtained.
       if (AdjustTokenPrivileges(
               hProcessToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), &prevTp, &prevTpLen) &&
           GetLastError() == ERROR_SUCCESS)
       {
-          // round up size to full pages and allocate
+          // Round up size to full pages and allocate
           allocSize = (allocSize + largePageSize - 1) & ~size_t(largePageSize - 1);
           mem = VirtualAlloc(
               NULL, allocSize, MEM_RESERVE | MEM_COMMIT | MEM_LARGE_PAGES, PAGE_READWRITE);
 
-          // privilege no longer needed, restore previous state
+          // Privilege no longer needed, restore previous state
           AdjustTokenPrivileges(hProcessToken, FALSE, &prevTp, 0, NULL, NULL);
       }
   }
@@ -359,14 +360,23 @@ static void* aligned_ttmem_alloc_large_pages(size_t allocSize) {
 
 void* aligned_ttmem_alloc(size_t allocSize, void*& mem) {
 
-  // try to allocate large pages
-  mem = aligned_ttmem_alloc_large_pages(allocSize);
-  if (mem)
-      sync_cout << "info string Hash table allocation: Windows large pages used." << sync_endl;
-  else
-      sync_cout << "info string Hash table allocation: Windows large pages not used." << sync_endl;
+  static bool firstCall = true;
 
-  // fall back to regular, page aligned, allocation if necessary
+  // Try to allocate large pages
+  mem = aligned_ttmem_alloc_large_pages(allocSize);
+
+  // Suppress info strings on the first call. The first call occurs before 'uci'
+  // is received and in that case this output confuses some GUIs.
+  if (!firstCall)
+  {
+      if (mem)
+          sync_cout << "info string Hash table allocation: Windows large pages used." << sync_endl;
+      else
+          sync_cout << "info string Hash table allocation: Windows large pages not used." << sync_endl;
+  }
+  firstCall = false;
+
+  // Fall back to regular, page aligned, allocation if necessary
   if (!mem)
       mem = VirtualAlloc(NULL, allocSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
@@ -386,7 +396,9 @@ void* aligned_ttmem_alloc(size_t allocSize, void*& mem) {
 
 #endif
 
-/// aligned_ttmem_free will free the previously allocated ttmem
+
+/// aligned_ttmem_free() will free the previously allocated ttmem
+
 #if defined(_WIN64)
 
 void aligned_ttmem_free(void* mem) {

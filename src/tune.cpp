@@ -70,7 +70,7 @@ static void make_option(const string& n, int v, const SetRange& r) {
   Options[n] << UCI::Option(v, r(v).first, r(v).second, on_tune);
   LastOption = &Options[n];
 
-  // Print formatted parameters, ready to be copy-pasted in fishtest
+  // Print formatted parameters, ready to be copy-pasted in Fishtest
   std::cout << n << ","
             << v << ","
             << r(v).first << "," << r(v).second << ","
@@ -83,7 +83,7 @@ template<> void Tune::Entry<int>::init_option() { make_option(name, value, range
 
 template<> void Tune::Entry<int>::read_option() {
   if (Options.count(name))
-      value = Options[name];
+      value = int(Options[name]);
 }
 
 template<> void Tune::Entry<Value>::init_option() { make_option(name, value, range); }
@@ -100,10 +100,10 @@ template<> void Tune::Entry<Score>::init_option() {
 
 template<> void Tune::Entry<Score>::read_option() {
   if (Options.count("m" + name))
-      value = make_score(Options["m" + name], eg_value(value));
+      value = make_score(int(Options["m" + name]), eg_value(value));
 
   if (Options.count("e" + name))
-      value = make_score(mg_value(value), Options["e" + name]);
+      value = make_score(mg_value(value), int(Options["e" + name]));
 }
 
 // Instead of a variable here we have a PostUpdate function: just call it
