@@ -70,7 +70,7 @@ void init(OptionsMap& o) {
   constexpr int MaxHashMB = Is64Bit ? 33554432 : 2048;
 
   o["Debug Log File"]        << Option("", on_logger);
-  o["Contempt"]              << Option(24, -100, 100); // in this edition the contempt 24 is restored in an experimental way
+  o["Contempt"]              << Option(24, -100, 100);
   o["Analysis Contempt"]     << Option("Both var Off var White var Black var Both", "Both");
   o["Threads"]               << Option(max_threads, 1, 512, on_threads); // sets the maximum number of threads as default
   o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);

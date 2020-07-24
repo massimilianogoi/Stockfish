@@ -3,12 +3,17 @@
 [![Build Status](https://travis-ci.org/official-stockfish/Stockfish.svg?branch=master)](https://travis-ci.org/official-stockfish/Stockfish)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/official-stockfish/Stockfish?branch=master&svg=true)](https://ci.appveyor.com/project/mcostalba/stockfish/branch/master)
 
-**Stockfish Polyglot** is none but the very own Stockfish with the ability to read the Polyglot (.bin) books. This chess program can read up to four Polyglot books at once.
+[Stockfish](https://stockfishchess.org) is a free, powerful UCI chess engine
+derived from Glaurung 2.1. It is not a complete chess program and requires a
+UCI-compatible GUI (e.g. XBoard with PolyGlot, Scid, Cute Chess, eboard, Arena,
+Sigma Chess, Shredder, Chess Partner or Fritz) in order to be used comfortably.
+Read the documentation for your GUI of choice for information about how to use
+Stockfish with it.
 
 
 ## Files
 
-This distribution of Stockfish Polyglot consists of the following files:
+This distribution of Stockfish consists of the following files:
 
   * Readme.md, the file you are currently reading.
 
@@ -37,7 +42,7 @@ Currently, Stockfish has the following UCI options:
     this equal to the number of CPU cores available.
 
   * #### Hash
-    The size of the hash table in MB.
+    The size of the hash table in MB. It is recommended to set Hash after setting Threads.
 
   * #### Clear Hash
     Clear the hash table.
@@ -61,12 +66,14 @@ Currently, Stockfish has the following UCI options:
     If enabled by UCI_LimitStrength, aim for an engine strength of the given Elo.
     This Elo rating has been calibrated at a time control of 60s+0.6s and anchored to CCRL 40/4.
 
+  * #### UCI_ShowWDL
+    If enabled, show approximate WDL statistics as part of the engine output.
+    These WDL numbers model expected game outcomes for a given evaluation and
+    game ply for engine self-play at fishtest LTC conditions (60+0.6s per game).
+
   * #### Move Overhead
     Assume a time delay of x ms due to network and GUI overheads. This is useful to
     avoid losses on time in those cases.
-
-  * #### Minimum Thinking Time
-    Search for at least x ms per move.
 
   * #### Slow Mover
     Lower values will make Stockfish take less time in games, higher values will
@@ -107,27 +114,6 @@ Currently, Stockfish has the following UCI options:
     Limit Syzygy tablebase probing to positions with at most this many pieces left
     (including kings and pawns).
 
-  * #### OwnBook
-    If checked allows the reading of Polyglot books in a determined file path.
- 
-   * #### BookFile
-     The complete file path of the first book (in example C:\Users\Massimiliano Goi\Documents\ChessBase\Books\Goi 6.2.3.bin).
-
-   * #### BookFile2
-     The complete file path of the second book (in example C:\Users\Massimiliano Goi\Documents\ChessBase\Books\Goi 6.2.3.bin).
-
-   * #### BookFile3
-     The complete file path of the third book (in example C:\Users\Massimiliano Goi\Documents\ChessBase\Books\Goi 6.2.3.bin).
-
-   * #### BookFile4
-     The complete file path of the fourth book (in example C:\Users\Massimiliano Goi\Documents\ChessBase\Books\Goi 6.2.3.bin).
-
-  * #### BestBookMove
-    If checked the engine will choose only the best variant for any book node.
-
-  * #### BookDepth
-    It specifies how deep in plies must be the reading of the Polyglot book (1 move White/Black = 2 plies). The standard value is 255.
-
 
 ## What to expect from Syzygybases?
 
@@ -154,27 +140,57 @@ more compact than Nalimov tablebases, while still storing all information
 needed for optimal play and in addition being able to take into account
 the 50-move rule.
 
+## Large Pages
 
-## Compiling Stockfish Polyglot yourself from the sources
+Stockfish supports large pages on Linux and Windows. Large pages make
+the hash access more efficient, improving the engine speed, especially
+on large hash sizes. Typical increases are 5..10% in terms of nps, but
+speed increases up to 30% have been measured. The support is
+automatic. Stockfish attempts to use large pages when available and
+will fall back to regular memory allocation when this is not the case.
 
-On Unix-like systems, it should be possible to compile Stockfish Polyglot
-directly from the source code with the included Makefile.
+### Support on Linux
 
-Stockfish Polyglot has support for 32 or 64-bit CPUs, the hardware POPCNT
-instruction, big-endian machines such as Power PC, and other platforms.
+Large page support on Linux is obtained by the Linux kernel
+transparent huge pages functionality. Typically, transparent huge pages
+are already enabled and no configuration is needed.
 
-In general it is recommended to run `make help` to see a list of make
-targets with corresponding descriptions. When not using the Makefile to
-compile (for instance with Microsoft MSVC) you need to manually
-set/unset some switches in the compiler command line; see file *types.h*
-for a quick reference.
+### Support on Windows
+
+The use of large pages requires "Lock Pages in Memory" privilege. See
+[Enable the Lock Pages in Memory Option (Windows)](https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/enable-the-lock-pages-in-memory-option-windows)
+on how to enable this privilege. Logout/login may be needed
+afterwards. Due to memory fragmentation, it may not always be
+possible to allocate large pages even when enabled. A reboot
+might alleviate this problem. To determine whether large pages
+are in use, see the engine log.
+
+## Compiling Stockfish yourself from the sources
+
+Stockfish has support for 32 or 64-bit CPUs, certain hardware
+instructions, big-endian machines such as Power PC, and other platforms.
+
+On Unix-like systems, it should be easy to compile Stockfish
+directly from the source code with the included Makefile in the folder
+`src`. In general it is recommended to run `make help` to see a list of make
+targets with corresponding descriptions.
+
+```
+    cd src
+    make help
+    make build ARCH=x86-64-modern
+```
+
+When not using the Makefile to compile (for instance with Microsoft MSVC) you
+need to manually set/unset some switches in the compiler command line; see
+file *types.h* for a quick reference.
 
 When reporting an issue or a bug, please tell us which version and
 compiler you used to create your executable. These informations can
 be found by typing the following commands in a console:
 
 ```
-    ./stockfish_polyglot
+    ./stockfish
     compiler
 ```
 
@@ -210,7 +226,7 @@ first, where the basics of Stockfish development are explained.
 
 ## Terms of use
 
-Stockfish Polyglot is free, and distributed under the **GNU General Public License version 3**
+Stockfish is free, and distributed under the **GNU General Public License version 3**
 (GPL v3). Essentially, this means that you are free to do almost exactly
 what you want with the program, including distributing it among your
 friends, making it available for download from your web site, selling
