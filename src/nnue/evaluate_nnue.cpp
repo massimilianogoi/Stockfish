@@ -18,7 +18,6 @@
 
 // Code for calculating NNUE evaluation function
 
-#include <fstream>
 #include <iostream>
 #include <set>
 
@@ -29,29 +28,28 @@
 
 #include "evaluate_nnue.h"
 
-ExtPieceSquare kpp_board_index[PIECE_NB] = {
- // convention: W - us, B - them
- // viewed from other side, W and B are reversed
-    { PS_NONE,     PS_NONE     },
-    { PS_W_PAWN,   PS_B_PAWN   },
-    { PS_W_KNIGHT, PS_B_KNIGHT },
-    { PS_W_BISHOP, PS_B_BISHOP },
-    { PS_W_ROOK,   PS_B_ROOK   },
-    { PS_W_QUEEN,  PS_B_QUEEN  },
-    { PS_W_KING,   PS_B_KING   },
-    { PS_NONE,     PS_NONE     },
-    { PS_NONE,     PS_NONE     },
-    { PS_B_PAWN,   PS_W_PAWN   },
-    { PS_B_KNIGHT, PS_W_KNIGHT },
-    { PS_B_BISHOP, PS_W_BISHOP },
-    { PS_B_ROOK,   PS_W_ROOK   },
-    { PS_B_QUEEN,  PS_W_QUEEN  },
-    { PS_B_KING,   PS_W_KING   },
-    { PS_NONE,     PS_NONE     }
-};
-
-
 namespace Eval::NNUE {
+
+  uint32_t kpp_board_index[PIECE_NB][COLOR_NB] = {
+   // convention: W - us, B - them
+   // viewed from other side, W and B are reversed
+      { PS_NONE,     PS_NONE     },
+      { PS_W_PAWN,   PS_B_PAWN   },
+      { PS_W_KNIGHT, PS_B_KNIGHT },
+      { PS_W_BISHOP, PS_B_BISHOP },
+      { PS_W_ROOK,   PS_B_ROOK   },
+      { PS_W_QUEEN,  PS_B_QUEEN  },
+      { PS_W_KING,   PS_B_KING   },
+      { PS_NONE,     PS_NONE     },
+      { PS_NONE,     PS_NONE     },
+      { PS_B_PAWN,   PS_W_PAWN   },
+      { PS_B_KNIGHT, PS_W_KNIGHT },
+      { PS_B_BISHOP, PS_W_BISHOP },
+      { PS_B_ROOK,   PS_W_ROOK   },
+      { PS_B_QUEEN,  PS_W_QUEEN  },
+      { PS_B_KING,   PS_W_KING   },
+      { PS_NONE,     PS_NONE     }
+  };
 
   // Input feature converter
   AlignedPtr<FeatureTransformer> feature_transformer;
@@ -77,7 +75,7 @@ namespace Eval::NNUE {
   bool ReadParameters(std::istream& stream, const AlignedPtr<T>& pointer) {
 
     std::uint32_t header;
-    stream.read(reinterpret_cast<char*>(&header), sizeof(header));
+    header = read_little_endian<std::uint32_t>(stream);
     if (!stream || header != T::GetHashValue()) return false;
     return pointer->ReadParameters(stream);
   }
@@ -92,13 +90,13 @@ namespace Eval::NNUE {
   }
 
   // Read network header
-  bool ReadHeader(std::istream& stream,
-    std::uint32_t* hash_value, std::string* architecture) {
-
+  bool ReadHeader(std::istream& stream, std::uint32_t* hash_value, std::string* architecture)
+  {
     std::uint32_t version, size;
-    stream.read(reinterpret_cast<char*>(&version), sizeof(version));
-    stream.read(reinterpret_cast<char*>(hash_value), sizeof(*hash_value));
-    stream.read(reinterpret_cast<char*>(&size), sizeof(size));
+
+    version     = read_little_endian<std::uint32_t>(stream);
+    *hash_value = read_little_endian<std::uint32_t>(stream);
+    size        = read_little_endian<std::uint32_t>(stream);
     if (!stream || version != kVersion) return false;
     architecture->resize(size);
     stream.read(&(*architecture)[0], size);
@@ -144,17 +142,12 @@ namespace Eval::NNUE {
     return accumulator.score;
   }
 
-  // Load the evaluation function file
-  bool load_eval_file(const std::string& evalFile) {
+  // Load eval, from a file stream or a memory stream
+  bool load_eval(std::string streamName, std::istream& stream) {
 
     Initialize();
-    fileName = evalFile;
-
-    std::ifstream stream(evalFile, std::ios::binary);
-
-    const bool result = ReadParameters(stream);
-
-    return result;
+    fileName = streamName;
+    return ReadParameters(stream);
   }
 
   // Evaluation function. Perform differential calculation.

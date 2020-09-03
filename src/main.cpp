@@ -36,6 +36,7 @@ int main(int argc, char* argv[]) {
 
   std::cout << engine_info() << std::endl;
 
+  CommandLine::init(argc, argv);
   UCI::init(Options);
   Tune::init();
   PSQT::init();

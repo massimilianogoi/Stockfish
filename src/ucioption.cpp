@@ -22,6 +22,7 @@
 #include <sstream>
 #include <thread>
 
+#include "evaluate.h"
 #include "misc.h"
 #include "search.h"
 #include "thread.h"
@@ -97,9 +98,7 @@ void init(OptionsMap& o) {
   o["BestBookMove"]          << Option(false, on_best_book_move); /// having this function disabled avoids repetitions in books testing
   o["BookDepth"]             << Option(255, 1, 255, on_book_depth);
   o["Use NNUE"]              << Option(true, on_use_NNUE);
-  // The default must follow the format nn-[SHA256 first 12 digits].nnue
-  // for the build process (profile-build and fishtest) to work.
-  o["EvalFile"]              << Option("20200720-1017.bin", on_eval_file);
+  o["EvalFile"]              << Option(EvalFileDefaultName, on_eval_file);
 }
 
 

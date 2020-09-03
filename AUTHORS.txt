@@ -36,10 +36,11 @@ Bryan Cross (crossbr)
 candirufish
 Chess13234
 Chris Cain (ceebo)
+Dale Weiler (graphitemaster)
 Dan Schmidt (dfannius)
 Daniel Axtens (daxtens)
 Daniel Dugovic (ddugovic)
-Dariusz Orzechowski
+Dariusz Orzechowski (dorzechowski)
 David Zar
 Daylen Yang (daylen)
 DiscanX
@@ -59,6 +60,7 @@ Fauzi Akram Dabat (FauziAkram)
 Felix Wittmann
 gamander
 Gary Heckman (gheckman)
+George Sobala (gsobala)
 gguliash
 Gian-Carlo Pascutto (gcp)
 Gontran Lemaire (gonlem)
@@ -106,7 +108,7 @@ Maciej Żenczykowski (zenczykowski)
 Malcolm Campbell (xoto10)
 Mark Tenzer (31m059)
 marotear
-Massimiliano Goi (massimilianogoi - Stockfish Polyglot)
+Massimiliano Goi (massimilianogoi)
 Matthew Lai (matthewlai)
 Matthew Sullivan (Matt14916)
 Michael An (man)
@@ -128,6 +130,7 @@ Niklas Fiekas (niklasf)
 Nikolay Kostov (NikolayIT)
 Nguyen Pham (nguyenpham)
 Norman Schmidt (FireFather)
+notruck
 Ondrej Mosnáček (WOnder93)
 Oskar Werkelin Ahlin
 Pablo Vazquez
