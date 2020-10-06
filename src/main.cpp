@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
   polybook.init(Options["BookFile3"]);
   polybook.init(Options["BookFile4"]);
   Search::clear(); // After threads are up
-  Eval::init_NNUE();
+  Eval::NNUE::init();
 
   UCI::loop(argc, argv);
 

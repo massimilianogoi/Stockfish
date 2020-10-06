@@ -49,8 +49,8 @@ void on_book_file3(const Option& o) { polybook3.init(o); }
 void on_book_file4(const Option& o) { polybook4.init(o); }
 void on_best_book_move(const Option& o) { polybook.set_best_book_move(o); }
 void on_book_depth(const Option& o) { polybook.set_book_depth(o); }
-void on_use_NNUE(const Option& ) { Eval::init_NNUE(); }
-void on_eval_file(const Option& ) { Eval::init_NNUE(); }
+void on_use_NNUE(const Option& ) { Eval::NNUE::init(); }
+void on_eval_file(const Option& ) { Eval::NNUE::init(); }
 
 /// Our case insensitive less() function as required by UCI protocol
 bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const {
@@ -70,8 +70,8 @@ void init(OptionsMap& o) {
   constexpr int MaxHashMB = Is64Bit ? 33554432 : 2048;
 
   o["Debug Log File"]        << Option("", on_logger);
-  o["Contempt"]              << Option(24, -100, 100);
-  o["Analysis Contempt"]     << Option("Both var Off var White var Black var Both", "Both");
+  o["Contempt"]              << Option(0, -100, 100); // contempt returns to 0
+  o["Analysis Contempt"]     << Option("Both var Off var White var Black var Both", "Off"); // Analysis Contempt Off
   o["Threads"]               << Option(max_threads, 1, 512, on_threads); // sets the maximum number of threads as default
   o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
   o["Clear Hash"]            << Option(on_clear_hash);
