@@ -40,11 +40,11 @@ https://www.comp.nus.edu.sg/~sergio-v/nnue/20200720-1017.bin
 
 ## UCI options
 
-Currently, Stockfish has the following UCI options:
+Currently, Stockfish Polyglot has the following UCI options:
 
   * #### Threads
-    The number of CPU threads used for searching a position. For best performance, set
-    this equal to the number of CPU cores available.
+    The number of CPU threads used for searching a position. Stockfish Polyglot automatically
+    sets the maximum number of threads for best performances.
 
   * #### Hash
     The size of the hash table in MB. It is recommended to set Hash after setting Threads.
