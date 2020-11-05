@@ -152,8 +152,10 @@ const string engine_info(bool to_uci) {
       ss << setw(2) << day << setw(2) << (1 + months.find(month) / 4) << year.substr(2);
   }
 
-  ss << (to_uci  ? "\nid author ": " by ")
-     << "the Stockfish developers (see AUTHORS file)";
+  ss << (Is64Bit ? " 64" : Is32Bit ? " 32" : "")
+     << (HasPext ? " BMI2" : HasAvx2 ? " AVX2" : (HasPopCnt ? " POPCNT" : ""))
+     << (to_uci  ? "\nid author ": " by ")
+     << "the Stockfish Team + Massimiliano Goi\n\nhttps://chess.massimilianogoi.com";
 
   return ss.str();
 }

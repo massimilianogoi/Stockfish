@@ -109,7 +109,6 @@ Maciej Żenczykowski (zenczykowski)
 Malcolm Campbell (xoto10)
 Mark Tenzer (31m059)
 marotear
-Massimiliano Goi (massimilianogoi)
 Matthew Lai (matthewlai)
 Matthew Sullivan (Matt14916)
 Michael An (man)
@@ -179,6 +178,9 @@ Unai Corzo (unaiic)
 Uri Blass (uriblass)
 Vince Negri (cuddlestmonkey)
 zz4032
+
+# Stockfish Polyglot author
+Massimiliano Goi (massimilianogoi)
 
 
 # Additionally, we acknowledge the authors and maintainers of fishtest,

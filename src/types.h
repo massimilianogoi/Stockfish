@@ -89,9 +89,17 @@ constexpr bool HasPext = true;
 constexpr bool HasPext = false;
 #endif
 
+#ifdef USE_AVX2
+constexpr bool HasAvx2 = true;
+#else
+constexpr bool HasAvx2 = false;
+#endif
+
 #ifdef IS_64BIT
 constexpr bool Is64Bit = true;
+constexpr bool Is32Bit = false;
 #else
+constexpr bool Is32Bit = true;
 constexpr bool Is64Bit = false;
 #endif
 
