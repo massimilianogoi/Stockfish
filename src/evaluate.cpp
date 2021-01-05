@@ -1002,7 +1002,6 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-make_v:
     // Derive single value from mg and eg parts of score
     v = winnable(score);
 
