@@ -1,6 +1,6 @@
 /*
   Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2020 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2021 The Stockfish developers (see AUTHORS file)
 
   Stockfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@
 
 using std::string;
 
+namespace Stockfish {
+
 UCI::OptionsMap Options; // Global object
 
 namespace UCI {
@@ -43,12 +45,10 @@ void on_hash_size(const Option& o) { TT.resize(size_t(o)); }
 void on_logger(const Option& o) { start_logger(o); }
 void on_threads(const Option& o) { Threads.set(size_t(o)); }
 void on_tb_path(const Option& o) { Tablebases::init(o); }
-void on_book_file(const Option& o) { polybook.init(o); }
-void on_book_file2(const Option& o) { polybook2.init(o); }
-void on_book_file3(const Option& o) { polybook3.init(o); }
-void on_book_file4(const Option& o) { polybook4.init(o); }
-void on_best_book_move(const Option& o) { polybook.set_best_book_move(o); }
-void on_book_depth(const Option& o) { polybook.set_book_depth(o); }
+void on_book1_file(const Option& o) { polybook[0].init(o); }
+void on_book2_file(const Option& o) { polybook[1].init(o); }
+void on_book3_file(const Option& o) { polybook[2].init(o); }
+void on_book4_file(const Option& o) { polybook[3].init(o); }
 void on_use_NNUE(const Option& ) { Eval::NNUE::init(); }
 void on_eval_file(const Option& ) { Eval::NNUE::init(); }
 
@@ -69,9 +69,8 @@ void init(OptionsMap& o) {
 
   constexpr int MaxHashMB = Is64Bit ? 33554432 : 2048;
 
-  o["Debug Log File"]        << Option("", on_logger);
   o["Contempt"]              << Option(0, -100, 100); // contempt returns to 0
-  o["Analysis Contempt"]     << Option("Both var Off var White var Black var Both", "Off"); // Analysis Contempt Off
+  o["Analysis Contempt"]     << Option("Off var Off var White var Black var Both", "Off"); // Analysis Contempt Off
   o["Threads"]               << Option(max_threads, 1, 512, on_threads); // sets the maximum number of threads as default
   o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
   o["Clear Hash"]            << Option(on_clear_hash);
@@ -90,15 +89,25 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
-  o["OwnBook"]               << Option(false); /// checkbox to switch from BIN to CTG or ABK
-  o["BookFile"]              << Option("", on_book_file);
-  o["BookFile 2"]            << Option("", on_book_file2);
-  o["BookFile 3"]            << Option("", on_book_file3);
-  o["BookFile 4"]            << Option("", on_book_file4);
-  o["BestBookMove"]          << Option(false, on_best_book_move); /// having this function disabled avoids repetitions in books testing
-  o["BookDepth"]             << Option(255, 1, 255, on_book_depth);
   o["Use NNUE"]              << Option(true, on_use_NNUE);
   o["EvalFile"]              << Option(EvalFileDefaultName, on_eval_file);
+  o["Debug Log File"]        << Option("", on_logger);
+  o["Book1"]                           << Option(false);
+  o["Book1 File"]                      << Option("<empty>", on_book1_file);
+  o["Book1 BestBookMove"]              << Option(false);
+  o["Book1 Depth"]                     << Option(100, 1, 350);
+  o["Book2"]                           << Option(false);
+  o["Book2 File"]                      << Option("<empty>", on_book2_file);
+  o["Book2 BestBookMove"]              << Option(false);
+  o["Book2 Depth"]                     << Option(100, 1, 350);
+  o["Book3"]                           << Option(false);
+  o["Book3 File"]                      << Option("<empty>", on_book3_file);
+  o["Book3 BestBookMove"]              << Option(false);
+  o["Book3 Depth"]                     << Option(100, 1, 350);
+  o["Book4"]                           << Option(false);
+  o["Book4 File"]                      << Option("<empty>", on_book4_file);
+  o["Book4 BestBookMove"]              << Option(false);
+  o["Book4 Depth"]                     << Option(100, 1, 350);
 }
 
 
@@ -208,3 +217,5 @@ Option& Option::operator=(const string& v) {
 }
 
 } // namespace UCI
+
+} // namespace stockfish_polyglot
