@@ -1,4 +1,4 @@
-# List of authors for Stockfish, as of August 4, 2020
+# List of authors for Stockfish Polyglot, as of May 17, 2021
 
 # Founders of the Stockfish project and fishtest infrastructure
 Tord Romstad (romstad)
@@ -24,8 +24,10 @@ Ali AlZhrani (Cooffe)
 Andrew Grant (AndyGrant)
 Andrey Neporada (nepal)
 Andy Duplain
+Antoine Champion (antoinechampion)
 Aram Tumanian (atumanian)
 Arjun Temurnikar
+Artem Solopiy (EntityFX)
 Auguste Pop
 Balint Pfliegel
 Ben Koshy (BKSpurgeon)
@@ -33,6 +35,7 @@ Bill Henry (VoyagerOne)
 Bojun Guo (noobpwnftw, Nooby)
 braich
 Brian Sheppard (SapphireBrand, briansheppard-toast)
+Bruno de Melo Costa (BM123499)
 Bryan Cross (crossbr)
 candirufish
 Chess13234
@@ -44,9 +47,12 @@ Daniel Dugovic (ddugovic)
 Dariusz Orzechowski (dorzechowski)
 David Zar
 Daylen Yang (daylen)
+Deshawn Mohan-Smith (GoldenRare)
+Dieter Dobbelaere (ddobbelaere)
 DiscanX
 Dominik Schlösser (domschl)
 double-beep
+Douglas Matos Gomes (dsmsgms)
 Eduardo Cáceres (eduherminio)
 Eelco de Groot (KingDefender)
 Elvin Liu (solarlight2)
@@ -64,7 +70,6 @@ Gary Heckman (gheckman)
 George Sobala (gsobala)
 gguliash
 Gian-Carlo Pascutto (gcp)
-Deshawn Mohan-Smith (GoldenRare)
 Gontran Lemaire (gonlem)
 Goodkov Vasiliy Aleksandrovich (goodkov)
 Gregor Cramer
@@ -98,6 +103,7 @@ Ken Takusagawa
 kinderchocolate
 Kiran Panditrao (Krgp)
 Kojirion
+Krystian Kuzniarek (kuzkry)
 Leonardo Ljubičić (ICCF World Champion)
 Leonid Pechenik (lp--)
 Linus Arver (listx)
@@ -110,8 +116,10 @@ Maciej Żenczykowski (zenczykowski)
 Malcolm Campbell (xoto10)
 Mark Tenzer (31m059)
 marotear
+Matt Ginsberg (mattginsberg)
 Matthew Lai (matthewlai)
 Matthew Sullivan (Matt14916)
+Maxim Molchanov (Maxim)
 Michael An (man)
 Michael Byrne (MichaelB7)
 Michael Chaly (Vizvezdenec)
@@ -162,10 +170,12 @@ Sergio Vieri (sergiovieri)
 sf-x
 Shane Booth (shane31)
 Shawn Varghese (xXH4CKST3RXx)
+Siad Daboul (Topologist)
 Stefan Geschwentner (locutus2)
 Stefano Cardanobile (Stefano80)
 Steinar Gunderson (sesse)
 Stéphane Nicolet (snicolet)
+Prokop Randáček (ProkopRandacek)
 Thanar2
 thaspel
 theo77186
@@ -180,10 +190,8 @@ Uri Blass (uriblass)
 Vince Negri (cuddlestmonkey)
 zz4032
 
-
-# Stockfish Polyglot author
+#adding the polyglot code to the source
 Massimiliano Goi (massimilianogoi)
-
 
 # Additionally, we acknowledge the authors and maintainers of fishtest,
 # an amazing and essential framework for the development of Stockfish!
